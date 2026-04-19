@@ -370,17 +370,19 @@ export async function loadScene(
 	// their post-patch content.
 	const xmlFiles = new Map<string, string>();
 
-	// 2a. Download XML files sequentially (to discover dependencies)
+	// Aggregated across every XML we load. MJCF allows exactly one
+	// `<compiler>` per model, but it may sit in an included file — so we
+	// collect here and resolve binary file= paths once at the end.
+	const compilerDirs: CompilerDirs = { assetDir: '', meshDir: '', textureDir: '' };
+
+	// 2a. Download XML files sequentially (to discover dependencies).
+	// We assert `.endsWith('.xml')` so scanXmlDeps can't queue anything else.
 	while (xmlQueue.length > 0) {
 		const fname = xmlQueue.shift()!;
 		if (downloaded.has(fname)) continue;
 		downloaded.add(fname);
 
-		if (!fname.endsWith('.xml')) {
-			// Non-XML discovered during XML scan — collect for parallel download
-			assetFiles.push(fname);
-			continue;
-		}
+		if (!fname.endsWith('.xml')) continue;
 
 		onProgress?.(`Downloading ${fname}...`);
 
@@ -439,7 +441,17 @@ export async function loadScene(
 
 		ensureDir(mujoco, fname);
 		mujoco.FS.writeFile(`/working/${fname}`, text);
-		scanDependencies(text, fname, downloaded, xmlQueue);
+		scanXmlDeps(text, fname, downloaded, xmlQueue);
+		mergeCompilerDirs(text, compilerDirs);
+	}
+
+	// 2a-b. Resolve binary dependencies now that the full include graph is
+	// loaded and compiler dirs are known. Scan every XML (main + includes) —
+	// `<mesh>` / `<texture>` / `<flexcomp file=…>` etc. can live in any of
+	// them, and the meshdir they take is the aggregated one, not necessarily
+	// the one declared in the same file.
+	for (const [fname, text] of xmlFiles) {
+		scanBinaryDeps(text, fname, compilerDirs, downloaded, assetFiles);
 	}
 
 	// 2b. Download all binary assets (meshes, textures). We pool fetches so
@@ -606,55 +618,155 @@ function extractAttr(attrBlob: string, name: string): string | null {
 	return m ? m[1] : null;
 }
 
-/** Normalize `a/b/../c` → `a/c` in a MuJoCo relative file path. */
-function normalizePath(input: string): string {
+/**
+ * Normalize `a/b/../c` → `a/c` in a MuJoCo-relative file path.
+ *
+ * Leading `..` that can't be popped are **preserved** so paths escaping the
+ * scene file's directory (e.g. `hammock/` referencing
+ * `<model file="../humanoid/humanoid.xml"/>`) stay resolvable when the
+ * caller joins them against a base URI / filesystem path. The old behaviour
+ * (silently eating unmatched `..`) collapsed those refs onto nonexistent
+ * siblings.
+ */
+export function normalizePath(input: string): string {
 	const parts = input.replace(/\/\//g, '/').split('/');
 	const norm: string[] = [];
 	for (const p of parts) {
-		if (p === '..') norm.pop();
-		else if (p !== '.') norm.push(p);
+		if (p === '..') {
+			// Pop only if the stack has a "real" directory on top.
+			// Otherwise keep the `..` so the path continues to escape upward.
+			if (norm.length > 0 && norm[norm.length - 1] !== '..') norm.pop();
+			else norm.push('..');
+		} else if (p !== '.' && p !== '') {
+			norm.push(p);
+		}
 	}
 	return norm.join('/');
 }
 
 /**
- * Scan XML for file dependencies (meshes, textures, includes).
- *
- * Uses regex instead of `DOMParser` so this works in Web Worker contexts too,
- * where `DOMParser` is not available. MuJoCo XML is simple enough for this to
- * be robust — we only look at the `<compiler>` tag's directory attributes and
- * any element with a `file=` attribute.
+ * Tags whose `file=` attribute points at a mesh-like asset and therefore
+ * takes the compiler's `meshdir` prefix. `<flexcomp type="mesh">` and
+ * `<skin>` both load meshes at compile time even though they live outside
+ * the `<asset>` block.
  */
-function scanDependencies(
+const MESH_TAGS: ReadonlySet<string> = new Set(['mesh', 'flexcomp', 'skin']);
+
+/**
+ * Tags whose `file=` attribute takes the compiler's `texturedir` prefix.
+ * `<hfield file="...">` is a grayscale PNG → shares the texture dir.
+ */
+const TEXTURE_TAGS: ReadonlySet<string> = new Set(['texture', 'hfield']);
+
+/**
+ * XML refs pulled into the main scene: `<include>` and `<model>` (the
+ * `<attach>` directive's sub-model asset). Never take a dir prefix.
+ */
+const XML_REF_TAGS: ReadonlySet<string> = new Set(['include', 'model']);
+
+/**
+ * Aggregated compiler directory settings. MJCF only allows one `<compiler>`
+ * element per model, but it may live in any included file — so we accumulate
+ * across every XML we load and resolve binary references once at the end
+ * using the final values. Otherwise `bunny.xml` (no compiler tag) referencing
+ * `<flexcomp file="bunny.obj">` alongside an `<include file="scene.xml">`
+ * that sets `meshdir="asset"` would queue `bunny.obj` with an empty prefix
+ * and the WASM compiler would fail to find it at `asset/bunny.obj`.
+ */
+interface CompilerDirs {
+	assetDir: string;
+	meshDir: string;
+	textureDir: string;
+}
+
+/**
+ * Match a tag's `file=` attribute. Non-greedy attribute blob lets us tolerate
+ * attributes in any order, single- or double-quoted.
+ */
+const TAG_FILE_RE = /<([a-zA-Z_][\w-]*)\b[^>]*?\bfile\s*=\s*["']([^"']+)["']/g;
+
+/**
+ * Queue every XML-valued `file=` reference (`<include>`, `<model>` and any
+ * future XML-referencing tag) for loading. Runs inline during the XML loop
+ * so nested includes get discovered. Binary refs are ignored here — those
+ * need the final compiler-dir state and are resolved in {@link scanBinaryDeps}
+ * after every XML has been loaded.
+ */
+function scanXmlDeps(
 	xmlString: string,
 	currentFile: string,
 	downloaded: Set<string>,
 	queue: string[]
-) {
-	// Find the <compiler ...> tag (first match) and pull out its directory attrs.
-	const compilerMatch = xmlString.match(/<compiler\b([^>]*)/);
-	const compilerAttrs = compilerMatch ? compilerMatch[1] : '';
-	const assetDir = extractAttr(compilerAttrs, 'assetdir') ?? '';
-	const meshDir = extractAttr(compilerAttrs, 'meshdir') ?? assetDir;
-	const textureDir = extractAttr(compilerAttrs, 'texturedir') ?? assetDir;
+): void {
 	const currentDir = currentFile.includes('/')
 		? currentFile.substring(0, currentFile.lastIndexOf('/') + 1)
 		: '';
 
-	// Match any tag that has a `file="..."` attribute. Capture (tagName, fileValue).
-	// Non-greedy attribute blob lets us tolerate attributes before `file=`.
-	const tagFileRe = /<([a-zA-Z_][\w-]*)\b[^>]*?\bfile\s*=\s*["']([^"']+)["']/g;
+	// Reset the shared regex's lastIndex — regex state is per-instance-global.
+	TAG_FILE_RE.lastIndex = 0;
 	let m: RegExpExecArray | null;
-	while ((m = tagFileRe.exec(xmlString)) !== null) {
+	while ((m = TAG_FILE_RE.exec(xmlString)) !== null) {
 		const tagName = m[1].toLowerCase();
-		const fileAttr = m[2];
+		if (!XML_REF_TAGS.has(tagName)) continue;
+		const fullPath = normalizePath(currentDir + m[2]);
+		if (!downloaded.has(fullPath)) queue.push(fullPath);
+	}
+}
+
+/**
+ * Merge any `<compiler>` dir attributes from `xmlString` into `dirs` in
+ * place. Last-file-wins if multiple XMLs somehow each set their own dir
+ * (shouldn't happen per MJCF spec).
+ */
+function mergeCompilerDirs(xmlString: string, dirs: CompilerDirs): void {
+	const compilerMatch = xmlString.match(/<compiler\b([^>]*)/);
+	if (!compilerMatch) return;
+	const attrs = compilerMatch[1];
+	const assetDir = extractAttr(attrs, 'assetdir');
+	const meshDir = extractAttr(attrs, 'meshdir');
+	const textureDir = extractAttr(attrs, 'texturedir');
+	if (assetDir !== null) dirs.assetDir = assetDir;
+	if (meshDir !== null) dirs.meshDir = meshDir;
+	if (textureDir !== null) dirs.textureDir = textureDir;
+}
+
+/**
+ * Resolve every binary (non-XML) `file=` reference in `xmlString` into a
+ * queue-able asset path using the final aggregated compiler dirs. Called
+ * once per loaded XML *after* the full include graph has been walked.
+ *
+ * We fall back to `assetDir` whenever the more specific dir is unset, matching
+ * MuJoCo's own lookup order (assetdir is the blanket default for all asset
+ * kinds). Empty dirs mean "relative to the XML file itself".
+ */
+function scanBinaryDeps(
+	xmlString: string,
+	currentFile: string,
+	dirs: CompilerDirs,
+	downloaded: Set<string>,
+	assetFiles: string[]
+): void {
+	const currentDir = currentFile.includes('/')
+		? currentFile.substring(0, currentFile.lastIndexOf('/') + 1)
+		: '';
+
+	const meshDir = dirs.meshDir || dirs.assetDir;
+	const textureDir = dirs.textureDir || dirs.assetDir;
+
+	TAG_FILE_RE.lastIndex = 0;
+	let m: RegExpExecArray | null;
+	while ((m = TAG_FILE_RE.exec(xmlString)) !== null) {
+		const tagName = m[1].toLowerCase();
+		if (XML_REF_TAGS.has(tagName)) continue; // handled in scanXmlDeps
 
 		let prefix = '';
-		if (tagName === 'mesh') prefix = meshDir ? meshDir + '/' : '';
-		else if (tagName === 'texture' || tagName === 'hfield')
-			prefix = textureDir ? textureDir + '/' : '';
+		if (MESH_TAGS.has(tagName)) prefix = meshDir ? meshDir + '/' : '';
+		else if (TEXTURE_TAGS.has(tagName)) prefix = textureDir ? textureDir + '/' : '';
 
-		const fullPath = normalizePath(currentDir + prefix + fileAttr);
-		if (!downloaded.has(fullPath)) queue.push(fullPath);
+		const fullPath = normalizePath(currentDir + prefix + m[2]);
+		if (!downloaded.has(fullPath)) {
+			downloaded.add(fullPath);
+			assetFiles.push(fullPath);
+		}
 	}
 }

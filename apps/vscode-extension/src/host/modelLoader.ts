@@ -66,8 +66,16 @@ export async function loadModel(
 }
 
 /**
- * Regex-based scan for `<include file="..."/>`. Matches the approach in
- * `packages/mujoco-svelte/src/lib/core/SceneLoader.ts` `scanDependencies`.
+ * Regex-based scan for every tag with a `file="..."` attribute, inlining any
+ * referenced `.xml` file. Covers both `<include>` and `<model>` — the latter
+ * is how MJCF's `<attach>` directive declares its reusable sub-model, and
+ * those files must reach the webview's `files` Map at compile time or the
+ * WASM loader fails with a generic asset-not-found error. Binary assets
+ * (meshes, textures, hfields) are left to the webview's HTTP fallback.
+ *
+ * Kept structurally consistent with `packages/mujoco-svelte/src/lib/core/
+ * SceneLoader.ts::scanDependencies` so both sides agree on the key under
+ * which a file is stored / looked up.
  */
 function scanIncludes(
   xml: string,
@@ -79,20 +87,36 @@ function scanIncludes(
     ? currentFile.substring(0, currentFile.lastIndexOf("/") + 1)
     : "";
 
-  const re = /<include\b[^>]*?\bfile\s*=\s*["']([^"']+)["']/g;
+  const re = /<[a-zA-Z_][\w-]*\b[^>]*?\bfile\s*=\s*["']([^"']+)["']/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(xml)) !== null) {
-    const full = normalize(currentDir + m[1]);
+    const rawPath = m[1];
+    // Only inline XML — binaries ride through `webview.asWebviewUri()`.
+    if (!rawPath.toLowerCase().endsWith(".xml")) continue;
+    const full = normalize(currentDir + rawPath);
     if (!visited.has(full)) queue.push(full);
   }
 }
 
+/**
+ * Normalize `a/b/../c` → `a/c` in a workspace-relative path. Leading `..`
+ * that can't be popped are preserved so includes/models that escape the
+ * scene file's directory (e.g. `hammock/hammock.xml` referencing
+ * `<model file="../humanoid/humanoid.xml"/>`) resolve correctly when we
+ * join them back against `rootDirUri` — `vscode.Uri.joinPath` does the
+ * physical traversal. The earlier implementation silently ate those `..`
+ * segments and collapsed the ref onto a nonexistent sibling path.
+ */
 function normalize(p: string): string {
   const parts = p.replace(/\/\//g, "/").split("/");
   const out: string[] = [];
   for (const s of parts) {
-    if (s === "..") out.pop();
-    else if (s !== "." && s !== "") out.push(s);
+    if (s === "..") {
+      if (out.length > 0 && out[out.length - 1] !== "..") out.pop();
+      else out.push("..");
+    } else if (s !== "." && s !== "") {
+      out.push(s);
+    }
   }
   return out.join("/");
 }

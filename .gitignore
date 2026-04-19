@@ -33,3 +33,8 @@ context/
 # Heavy demo fixtures — fetched on demand, see debug/README.md.
 debug/fixtures/procthor-10k-train/
 debug/fixtures/g1/
+
+# Local mirror of MuJoCo's upstream test models
+# (cp -R context/model_mujoco_test debug/fixtures/mujoco_test) —
+# kept out of the repo so it doesn't bloat commits.
+debug/fixtures/mujoco_test/

@@ -94,10 +94,17 @@
 			{readout}
 		</span>
 	</div>
-	{#if graph}
+	{#if graph && samples.length >= 2}
+		<!--
+		  layerchart subtracts its padding (~4px each side) from the container
+		  width to size the plot area. Inside a collapsed or zero-width
+		  container that produces negative `<rect>` dims and the browser
+		  warns in the console. Gate on the container being visibly wide AND
+		  on ≥2 samples so we never hand the chart a degenerate case.
+		-->
 		<Chart.Container
 			config={chartConfig}
-			class="bg-muted/40 aspect-auto h-10 w-full overflow-hidden rounded-sm"
+			class="bg-muted/40 aspect-auto h-10 w-full min-w-[40px] overflow-hidden rounded-sm"
 		>
 			<LineChart
 				data={samples}
