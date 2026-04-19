@@ -250,6 +250,33 @@ interface LoadResult {
  * (returns `null` / `undefined`). Returns null on HTTP failure so the caller
  * can decide whether to stub or warn.
  */
+/**
+ * Inject an invisible collision plane into the first `<worldbody>` of `text`
+ * if the document doesn't already model a plane geom of its own. The marker
+ * `name="__mjv_default_floor"` distinguishes the injected geom from user
+ * authored content — selection / XmlIndex code can filter on it if needed.
+ *
+ * Detection is a literal substring match on `<geom type="plane"` — fast, and
+ * accurate for the hand-written MJCF we've seen. False negatives (e.g.,
+ * `type='plane'` in single quotes, or whitespace between attr name and `=`)
+ * are rare in practice; worst case the user's floor coexists with ours and
+ * MuJoCo discards the redundant plane-plane contact.
+ */
+function maybeInjectDefaultFloor(text: string): string {
+	// Any geom declaring the `plane` type — existing MJCF floor.
+	if (/<geom\b[^>]*\btype\s*=\s*["']plane["']/.test(text)) return text;
+
+	// `<freejoint/>`s reset contacts but that's unrelated — we only skip the
+	// injection when there's already a static ground plane.
+	const worldOpen = text.match(/<worldbody\b[^>]*>/);
+	if (!worldOpen || worldOpen.index === undefined) return text;
+
+	const insertAt = worldOpen.index + worldOpen[0].length;
+	const plane =
+		'\n    <geom name="__mjv_default_floor" type="plane" size="0 0 0.125" rgba="0 0 0 0" contype="15" conaffinity="15"/>';
+	return text.slice(0, insertAt) + plane + text.slice(insertAt);
+}
+
 async function readText(
 	loader: SceneFileLoader | undefined,
 	baseUrl: string,
@@ -388,6 +415,18 @@ export async function loadScene(
 					}
 				}
 			}
+		}
+
+		// 3b. For the main scene only: inject an invisible collision plane into
+		// <worldbody> so dropped objects have something to land on, unless the
+		// user already modelled their own plane geom anywhere in the document
+		// set. The visual floor mesh sits at z=-1 to lose any z-fight with
+		// user-authored ground planes at z=0 — the collision plane goes at the
+		// origin so gravity resolves cleanly. Controlled by
+		// `config.injectDefaultFloor`; leave off for genuinely free-floating
+		// scenes (pendulums, orbits, …).
+		if (fname === config.sceneFile && config.injectDefaultFloor) {
+			text = maybeInjectDefaultFloor(text);
 		}
 
 		if (fname === config.sceneFile) mainSceneXml = text;

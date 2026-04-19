@@ -441,6 +441,15 @@ export interface SceneConfig {
 	 * content (e.g., the VSCode editor's unsaved buffer for the root XML).
 	 */
 	fileLoader?: SceneFileLoader;
+	/**
+	 * When true and the main scene XML contains no `<geom type="plane">`, the
+	 * loader injects an invisible plane at z=0 into `<worldbody>` before
+	 * compilation so objects have something to land on. Skipped automatically
+	 * when the user's MJCF already provides a plane geom. Tied to the same
+	 * "default floor" preference that controls the visual overlay, so toggling
+	 * the floor off gives you a floor-less physics scene on next load.
+	 */
+	injectDefaultFloor?: boolean;
 }
 
 export interface SceneMarker {

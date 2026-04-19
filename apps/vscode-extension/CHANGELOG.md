@@ -4,6 +4,12 @@ All notable changes to the MuJoCo Viewer extension will be documented in this fi
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.5] — 2026-04-19
+
+### Fixed
+
+- **Default floor now provides collision.** Until 0.1.4 the "Default floor" toggle only rendered a Three.js mesh — nice to look at, but MuJoCo didn't know about it, so dropped objects fell through forever. The loader now injects an invisible `<geom type="plane">` into `<worldbody>` at load time when the default floor is enabled AND your MJCF doesn't already model a plane of its own. Turn the floor off in settings (`mujoco-viewer.rendering.showGrid: false`) for genuinely free-floating scenes (pendulums, orbits, …).
+
 ## [0.1.4] — 2026-04-19
 
 ### Removed

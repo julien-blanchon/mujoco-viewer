@@ -70,7 +70,13 @@
 				: payload.assetBaseUri + '/',
 			sceneFile: payload.rootPath,
 			onMissingAsset: 'stub',
-			fileLoader
+			fileLoader,
+			// Tie the injected collision plane to the same "default floor"
+			// preference that drives the visual overlay, so turning off the
+			// floor gives you a genuinely floor-less physics scene on next
+			// load. Toggling at runtime only affects the mesh; recompile to
+			// change the collision plane.
+			injectDefaultFloor: adapter.settings.current.rendering.showGrid
 		};
 	}
 
