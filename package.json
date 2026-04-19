@@ -1,0 +1,30 @@
+{
+  "name": "mujoco-viewer-workspace",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Monorepo root for the MuJoCo Viewer VSCode extension, debug web app, and supporting packages.",
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "debug"
+  ],
+  "scripts": {
+    "dev:ext": "bun run --filter mujoco-viewer dev",
+    "dev:web": "bun run --filter mujoco-viewer-debug dev",
+    "launch:ext": "bun run --filter mujoco-viewer launch",
+    "build": "bun run --filter mujoco-viewer build",
+    "build:web": "bun run --filter mujoco-viewer-debug build",
+    "package": "bun run --filter mujoco-viewer package",
+    "typecheck": "bun run --filter '*' typecheck",
+    "check": "bun run --filter '*' check"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
+  },
+  "engines": {
+    "node": ">=20",
+    "bun": ">=1.2"
+  }
+}

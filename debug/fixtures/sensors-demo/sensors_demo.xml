@@ -1,0 +1,84 @@
+<mujoco model="Sensors Demo">
+  <!--
+    Compact scene exercising features other bundled scenes miss: rangefinder
+    sensor, mocap body driving a free body via a `connect` equality, touch
+    sensor, plus the full IMU triad + frame* sensor set. Self-contained.
+  -->
+
+  <compiler autolimits="true"/>
+  <option timestep="0.005" gravity="0 0 -9.81"/>
+
+  <visual>
+    <headlight ambient="0.2 0.2 0.2" diffuse="0.6 0.6 0.6"/>
+  </visual>
+
+  <default>
+    <default class="lab">
+      <geom rgba="0.85 0.85 0.85 1" friction=".8 .02 .002"/>
+      <joint damping="0.3"/>
+      <default class="sensor-site">
+        <site rgba="0.9 0.7 0.1 1" size="0.015" group="4"/>
+      </default>
+    </default>
+  </default>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.35 0.45 0.55" rgb2="0.08 0.1 0.14"
+             width="128" height="768"/>
+    <texture type="2d" name="grid" builtin="checker" width="512" height="512"
+             rgb1="0.18 0.2 0.22" rgb2="0.08 0.09 0.11" mark="cross" markrgb="0.7 0.7 0.7"/>
+    <material name="grid" texture="grid" texrepeat="3 3" reflectance="0.15"/>
+    <material name="cart" rgba="0.35 0.55 0.85 1" specular="0.4" shininess="0.6"/>
+  </asset>
+
+  <worldbody>
+    <light name="key" pos="1.5 -1.5 2" dir="-1 1 -2" diffuse="0.9 0.85 0.8"
+           specular="0.3 0.3 0.3" castshadow="true"/>
+
+    <geom name="floor" type="plane" size="0 0 0.05" material="grid" class="lab"/>
+
+    <!-- Rolling cart with sensor sites -->
+    <body name="cart" pos="0 0 0.08" childclass="lab">
+      <joint name="cart_x" type="slide" axis="1 0 0" range="-0.6 0.6"/>
+      <geom name="cart_box" type="box" size="0.12 0.06 0.05" material="cart"/>
+      <site name="imu" class="sensor-site" pos="0 0 0.06"/>
+      <site name="rangefinder" class="sensor-site" pos="0 0 -0.05"/>
+      <site name="touch_pad" class="sensor-site" type="box" size="0.1 0.05 0.005"
+            pos="0 0 0.055" rgba="0.3 0.8 0.3 0.4"/>
+    </body>
+
+    <!-- Mocap teleop rig: drag the green target to teleport the free cube. -->
+    <body name="target" mocap="true" pos="0.4 -0.3 0.3">
+      <geom type="box" size="0.03 0.03 0.03" rgba="0.2 0.8 0.3 0.35"
+            contype="0" conaffinity="0"/>
+    </body>
+    <body name="free_cube" pos="0.4 -0.3 0.3">
+      <freejoint/>
+      <geom name="free_cube_geom" type="box" size="0.03 0.03 0.03"
+            material="cart" contype="0" conaffinity="0"/>
+    </body>
+  </worldbody>
+
+  <equality>
+    <connect body1="free_cube" body2="target" anchor="0 0 0"/>
+  </equality>
+
+  <actuator>
+    <position name="cart_drive" joint="cart_x" ctrlrange="-0.6 0.6" kp="40"/>
+  </actuator>
+
+  <sensor>
+    <rangefinder name="floor_dist" site="rangefinder"/>
+    <gyro          name="gyro"    site="imu"/>
+    <accelerometer name="accel"   site="imu"/>
+    <velocimeter   name="linvel"  site="imu"/>
+    <magnetometer  name="magnet"  site="imu"/>
+    <jointpos name="cart_pos" joint="cart_x"/>
+    <jointvel name="cart_vel" joint="cart_x"/>
+    <touch name="cart_touch" site="touch_pad"/>
+    <framepos    name="cube_pos"    objtype="body" objname="free_cube"/>
+    <framequat   name="cube_quat"   objtype="body" objname="free_cube"/>
+    <framelinvel name="cube_linvel" objtype="body" objname="free_cube"/>
+    <frameangvel name="cube_angvel" objtype="body" objname="free_cube"/>
+  </sensor>
+</mujoco>

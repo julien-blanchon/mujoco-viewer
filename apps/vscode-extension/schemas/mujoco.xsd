@@ -1,0 +1,2663 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <!--#region
+    attribute_types.xsd -->
+  <!-- general attributes -->
+  <xs:simpleType name="twoIntsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\s*[0-9]+\s+[0-9]+\s*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="upToTwoIntsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\s*([0-9]+)(\s+[0-9]+)?\s*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="threeIntsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\s*[0-9]+(\s+[0-9]+){2}\s*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="upToThreeIntsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\s*([0-9]+)(\s+[0-9]+){0,2}\s*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="infIntsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\s*([0-9]+(\s+[0-9]+)*\s*)?" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="twoRealsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern
+        value="\s*[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?\s+[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?\s*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="upToTwoRealsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern
+        value="\s*([+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?)(\s+([+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?))?\s*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="threeRealsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern
+        value="\s*[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?(\s+[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?){2}\s*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="upToThreeRealsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern
+        value="\s*([+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)?)(\s+([+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)?)){0,2}\s*" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="fourRealsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern
+        value="\s*[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?(\s+[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?){3}\s*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="upToFourRealsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern
+        value="\s*([+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)?)(\s+([+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)?)){0,3}\s*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="fiveRealsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern
+        value="\s*[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?(\s+[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?){4}\s*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="upToFiveRealsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern
+        value="\s*([+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)?)(\s+([+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)?)){0,4}\s*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="sixRealsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern
+        value="\s*[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?(\s+[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?){5}\s*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="upToSixRealsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern
+        value="\s*([+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)?)(\s+([+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)?)){0,5}\s*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="sevenRealsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern
+        value="\s*[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?(\s+[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?){6}\s*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="upToSevenRealsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern
+        value="\s*([+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)?)(\s+([+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)?)){0,6}\s*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="tenRealsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern
+        value="\s*[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?(\s+[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?){9}\s*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="upToTenRealsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern
+        value="\s*([+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)?)(\s+([+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)?)){0,9}\s*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="infRealsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern
+        value="\s*([+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?(\s+[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?)*\s*)?" />
+    </xs:restriction>
+  </xs:simpleType>
+
+
+  <xs:simpleType name="solimpType">
+    <xs:restriction base="xs:string">
+      <xs:pattern
+        value="(([+-]?(([0-9]+.{0,1}[0-9]*)|([0-9]*.{0,1}[0-9]+))(e-?[0-9]+)? ){2}[+-]?(([0-9]+.{0,1}[0-9]*)|([0-9]*.{0,1}[0-9]+))(e-?[0-9]+)?)|(([+-]?(([0-9]+.{0,1}[0-9]*)|([0-9]*.{0,1}[0-9]+))(e-?[0-9]+)? ){4}[+-]?(([0-9]+.{0,1}[0-9]*)|([0-9]*.{0,1}[0-9]+))(e-?[0-9]+)?)" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="flagSimpleType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="enable" />
+      <xs:enumeration value="disable" />
+    </xs:restriction>
+  </xs:simpleType>
+
+
+  <!-- compiler attributes -->
+  <xs:simpleType name="coordinateType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="local" />
+      <xs:enumeration value="global" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="compilerAngleType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="degree" />
+      <xs:enumeration value="radian" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="eulerseqType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[x-zX-Z]{3}" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="inertiafromgeomType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="false" />
+      <xs:enumeration value="true" />
+      <xs:enumeration value="auto" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="modeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="none" />
+      <xs:enumeration value="muscle" />
+      <xs:enumeration value="muscleuser" />
+      <xs:enumeration value="all" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="integratorType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Euler" />
+      <xs:enumeration value="RK4" />
+      <xs:enumeration value="implicit" />
+      <xs:enumeration value="implicitfast" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="collisionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="all" />
+      <xs:enumeration value="predefined" />
+      <xs:enumeration value="dynamic" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="coneType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="pyramidal" />
+      <xs:enumeration value="elliptic" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="jacobianType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="dense" />
+      <xs:enumeration value="sparse" />
+      <xs:enumeration value="auto" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="solverType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="PGS" />
+      <xs:enumeration value="CG" />
+      <xs:enumeration value="Newton" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- asset attributes -->
+  <xs:simpleType name="assetTexturetypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="2d" />
+      <xs:enumeration value="cube" />
+      <xs:enumeration value="skybox" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="assetTextureContentType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="image/png" />
+      <xs:enumeration value="image/vnd.mujoco.texture" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="colorspaceType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="auto" />
+      <xs:enumeration value="linear" />
+      <xs:enumeration value="sRGB" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="roleType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="rgb" />
+      <xs:enumeration value="normal" />
+      <xs:enumeration value="occlusion" />
+      <xs:enumeration value="roughness" />
+      <xs:enumeration value="metallic" />
+      <xs:enumeration value="opacity" />
+      <xs:enumeration value="emissive" />
+      <xs:enumeration value="orm" />
+      <xs:enumeration value="rgba" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="builtinType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="none" />
+      <xs:enumeration value="gradient" />
+      <xs:enumeration value="checker" />
+      <xs:enumeration value="flat" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="markType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="none" />
+      <xs:enumeration value="edge" />
+      <xs:enumeration value="cross" />
+      <xs:enumeration value="random" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="assetHfieldContentType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="image/png" />
+      <xs:enumeration value="image/vnd.mujoco.hfield" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="meshbuiltinType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="wedge" />
+      <xs:enumeration value="rect" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="meshinertiaType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="legacy" />
+      <xs:enumeration value="convex" />
+      <xs:enumeration value="exact" />
+      <xs:enumeration value="shell" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="assetMeshContentType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="model/obj" />
+      <xs:enumeration value="model/stl" />
+      <xs:enumeration value="model/vnd.mujoco.msh" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="autoBoolType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="false" />
+      <xs:enumeration value="true" />
+      <xs:enumeration value="auto" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="lighttypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="spot" />
+      <xs:enumeration value="directional" />
+      <xs:enumeration value="point" />
+      <xs:enumeration value="image" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="fluidshapeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="none" />
+      <xs:enumeration value="ellipsoid" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="bodyFlexcomptypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="grid" />
+      <xs:enumeration value="box" />
+      <xs:enumeration value="cylinder" />
+      <xs:enumeration value="ellipsoid" />
+      <xs:enumeration value="mesh" />
+      <xs:enumeration value="gmsh" />
+      <xs:enumeration value="direct" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="selfcollideType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="none" />
+      <xs:enumeration value="narrow" />
+      <xs:enumeration value="bvh" />
+      <xs:enumeration value="sap" />
+      <xs:enumeration value="auto" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="elastic2dType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="none" />
+      <xs:enumeration value="bend" />
+      <xs:enumeration value="stretch" />
+      <xs:enumeration value="both" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- body/joint attribute -->
+  <xs:simpleType name="equalityJointtypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="free" />
+      <xs:enumeration value="ball" />
+      <xs:enumeration value="slide" />
+      <xs:enumeration value="hinge" />
+    </xs:restriction>
+  </xs:simpleType>
+  <!-- body/geom attribute -->
+  <xs:simpleType name="geomtypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="plane" />
+      <xs:enumeration value="hfield" />
+      <xs:enumeration value="sphere" />
+      <xs:enumeration value="capsule" />
+      <xs:enumeration value="ellipsoid" />
+      <xs:enumeration value="cylinder" />
+      <xs:enumeration value="box" />
+      <xs:enumeration value="mesh" />
+      <xs:enumeration value="sdf" />
+    </xs:restriction>
+  </xs:simpleType>
+  <!-- body/site attribute -->
+  <xs:simpleType name="sitetypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="sphere" />
+      <xs:enumeration value="capsule" />
+      <xs:enumeration value="ellipsoid" />
+      <xs:enumeration value="cylinder" />
+      <xs:enumeration value="box" />
+    </xs:restriction>
+  </xs:simpleType>
+  <!-- body/camera attribute -->
+  <xs:simpleType name="cameramodeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="fixed" />
+      <xs:enumeration value="track" />
+      <xs:enumeration value="trackcom" />
+      <xs:enumeration value="targetbody" />
+      <xs:enumeration value="targetbodycom" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="bodyCompositetypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="particle" />
+      <xs:enumeration value="grid" />
+      <xs:enumeration value="cable" />
+      <xs:enumeration value="rope" />
+      <xs:enumeration value="loop" />
+      <xs:enumeration value="cloth" />
+    </xs:restriction>
+  </xs:simpleType>
+  <!-- body/composite/joint attribute -->
+  <xs:simpleType name="jointkindType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="main" />
+      <xs:enumeration value="twist" />
+      <xs:enumeration value="stretch" />
+    </xs:restriction>
+  </xs:simpleType>
+  <!-- body/composite/tendon attribute -->
+  <xs:simpleType name="tendonkindType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="main" />
+      <xs:enumeration value="shear" />
+    </xs:restriction>
+  </xs:simpleType>
+  <!-- actuator/general -->
+  <xs:simpleType name="dyntypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="none" />
+      <xs:enumeration value="integrator" />
+      <xs:enumeration value="filter" />
+      <xs:enumeration value="filterexact" />
+      <xs:enumeration value="muscle" />
+      <xs:enumeration value="user" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="gaintypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="fixed" />
+      <xs:enumeration value="affine" />
+      <xs:enumeration value="muscle" />
+      <xs:enumeration value="user" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="biastypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="none" />
+      <xs:enumeration value="affine" />
+      <xs:enumeration value="muscle" />
+      <xs:enumeration value="user" />
+    </xs:restriction>
+  </xs:simpleType>
+  <!-- sensor/frame -->
+  <xs:simpleType name="objtypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="body" />
+      <xs:enumeration value="xbody" />
+      <xs:enumeration value="geom" />
+      <xs:enumeration value="site" />
+      <xs:enumeration value="camera" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="customobjtypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="body" />
+      <xs:enumeration value="joint" />
+      <xs:enumeration value="geom" />
+      <xs:enumeration value="site" />
+      <xs:enumeration value="camera" />
+      <xs:enumeration value="light" />
+      <xs:enumeration value="mesh" />
+      <xs:enumeration value="skin" />
+      <xs:enumeration value="hfield" />
+      <xs:enumeration value="texture" />
+      <xs:enumeration value="material" />
+      <xs:enumeration value="equality" />
+      <xs:enumeration value="tendon" />
+      <xs:enumeration value="actuator" />
+      <xs:enumeration value="sensor" />
+      <xs:enumeration value="numeric" />
+      <xs:enumeration value="text" />
+      <xs:enumeration value="tuple" />
+      <xs:enumeration value="contact" />
+      <xs:enumeration value="keyframe" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="datatypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="real" />
+      <xs:enumeration value="positive" />
+      <xs:enumeration value="axis" />
+      <xs:enumeration value="quaternion" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="needstageType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="pos" />
+      <xs:enumeration value="vel" />
+      <xs:enumeration value="acc" />
+    </xs:restriction>
+  </xs:simpleType>
+  <!--#endregion
+    attribute_types.xsd -->
+
+  <!--#region
+    root.xsd -->
+  <xs:complexType name="rootIncludeType">
+    <xs:attribute name="file" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="rootMujocoType">
+    <xs:attribute name="model" type="xs:string" default="MuJoCo Model" />
+  </xs:complexType>
+  <!--#endregion
+    root.xsd -->
+
+  <!--#region
+    compiler.xsd -->
+  <xs:complexType name="compilerType">
+    <xs:attribute name="autolimits" type="xs:boolean" default="false" />
+    <xs:attribute name="boundmass" type="xs:double" default="0" />
+    <xs:attribute name="boundinertia" type="xs:double" default="0" />
+    <xs:attribute name="settotalmass" type="xs:double" default="-1" />
+    <xs:attribute name="balanceinertia" type="xs:boolean" default="false" />
+    <xs:attribute name="strippath" type="xs:boolean" default="false" />
+    <xs:attribute name="coordinate" type="coordinateType" default="local" />
+    <xs:attribute name="angle" type="compilerAngleType" default="degree" />
+    <xs:attribute name="fitaabb" type="xs:boolean" default="false" />
+    <xs:attribute name="eulerseq" type="eulerseqType" default="xyz" />
+    <xs:attribute name="meshdir" type="xs:string" />
+    <xs:attribute name="texturedir" type="xs:string" />
+    <xs:attribute name="assetdir" type="xs:string" />
+    <xs:attribute name="discardvisual" type="xs:boolean" default="false" />
+    <xs:attribute name="userthread" type="xs:boolean" default="false" />
+    <xs:attribute name="fusestatic" type="xs:boolean" default="false" />
+    <xs:attribute name="inertiafromgeom" type="inertiafromgeomType" default="auto" />
+    <xs:attribute name="inertiagrouprange" type="twoIntsType" default="0 5" />
+    <xs:attribute name="saveinertial" type="xs:boolean" default="false" />
+    <xs:attribute name="alignfree" type="xs:boolean" default="false" />
+  </xs:complexType>
+
+  <xs:complexType name="compilerLengthRangeType">
+    <xs:attribute name="mode" type="modeType" default="muscle" />
+    <xs:attribute name="useexisting" type="xs:boolean" default="true" />
+    <xs:attribute name="uselimit" type="xs:boolean" default="false" />
+    <xs:attribute name="accel" type="xs:double" default="20" />
+    <xs:attribute name="maxforce" type="xs:double" default="0" />
+    <xs:attribute name="timeconst" type="xs:double" default="1" />
+    <xs:attribute name="timestep" type="xs:double" default="0.01" />
+    <xs:attribute name="inttotal" type="xs:double" default="10" />
+    <xs:attribute name="interval" type="xs:double" default="2" />
+    <xs:attribute name="tolrange" type="xs:double" default="0.05" />
+  </xs:complexType>
+  <!--#endregion
+    compiler.xsd -->
+
+  <!--#region
+    option.xsd -->
+  <xs:complexType name="optionType">
+    <xs:attribute name="timestep" type="xs:double" default=".002" />
+    <xs:attribute name="apirate" type="xs:double" default="100" />
+    <xs:attribute name="impratio" type="xs:double" default="1" />
+    <xs:attribute name="gravity" type="threeRealsType" default="0 0 -9.81" />
+    <xs:attribute name="wind" type="threeRealsType" default="0 0 0" />
+    <xs:attribute name="magnetic" type="threeRealsType" default="0 -.5 0" />
+    <xs:attribute name="density" type="xs:double" default="0" />
+    <xs:attribute name="viscosity" type="xs:double" default="0" />
+    <xs:attribute name="o_margin" type="xs:double" default="0" />
+    <xs:attribute name="o_solimp" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="o_solref" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="integrator" type="integratorType" default="Euler" />
+    <xs:attribute name="cone" type="coneType" default="pyramidal" />
+    <xs:attribute name="jacobian" type="jacobianType" default="auto" />
+    <xs:attribute name="solver" type="solverType" default="Newton" />
+    <xs:attribute name="iterations" type="xs:int" default="100" />
+    <xs:attribute name="tolerance" type="xs:double" default="1e-8" />
+    <xs:attribute name="ls_iterations" type="xs:int" default="0" />
+    <xs:attribute name="ls_tolerance" type="xs:double" default="1e-6" />
+    <xs:attribute name="noslip_iterations" type="xs:int" default="0" />
+    <xs:attribute name="noslip_tolerance" type="xs:double" default="1e-6" />
+    <xs:attribute name="ccd_iterations" type="xs:int" default="0" />
+    <xs:attribute name="ccd_tolerance" type="xs:double" default="1e-6" />
+    <xs:attribute name="sdf_iterations" type="xs:int" default="20" />
+    <xs:attribute name="sdf_initpoints" type="xs:int" default="8" />
+  </xs:complexType>
+
+  <xs:complexType name="optionFlagType">
+    <xs:attribute name="constraint" type="flagSimpleType" default="enable" />
+    <xs:attribute name="equality" type="flagSimpleType" default="enable" />
+    <xs:attribute name="frictionloss" type="flagSimpleType" default="enable" />
+    <xs:attribute name="limit" type="flagSimpleType" default="enable" />
+    <xs:attribute name="contact" type="flagSimpleType" default="enable" />
+    <xs:attribute name="spring" type="flagSimpleType" default="enable" />
+    <xs:attribute name="damper" type="flagSimpleType" default="enable" />
+    <xs:attribute name="gravity" type="flagSimpleType" default="enable" />
+    <xs:attribute name="clampctrl" type="flagSimpleType" default="enable" />
+    <xs:attribute name="warmstart" type="flagSimpleType" default="enable" />
+    <xs:attribute name="filterparent" type="flagSimpleType" default="enable" />
+    <xs:attribute name="actuation" type="flagSimpleType" default="enable" />
+    <xs:attribute name="refsafe" type="flagSimpleType" default="enable" />
+    <xs:attribute name="sensor" type="flagSimpleType" default="enable" />
+    <xs:attribute name="midphase" type="flagSimpleType" default="enable" />
+    <xs:attribute name="eulerdamp" type="flagSimpleType" default="enable" />
+    <xs:attribute name="autoreset" type="flagSimpleType" default="enable" />
+    <xs:attribute name="override" type="flagSimpleType" default="disable" />
+    <xs:attribute name="energy" type="flagSimpleType" default="disable" />
+    <xs:attribute name="fwdinv" type="flagSimpleType" default="disable" />
+    <xs:attribute name="invdiscrete" type="flagSimpleType" default="disable" />
+    <xs:attribute name="multiccd" type="flagSimpleType" default="disable" />
+    <xs:attribute name="island" type="flagSimpleType" default="disable" />
+    <xs:attribute name="nativeccd" type="flagSimpleType" default="disable" />
+  </xs:complexType>
+
+  <!--#endregion
+    option.xsd -->
+
+  <!--#region
+    size.xsd -->
+  <xs:complexType name="sizeType">
+    <xs:attribute name="memory" type="xs:string" />
+    <xs:attribute name="njmax" type="xs:int" default="-1" />
+    <xs:attribute name="nconmax" type="xs:int" default="-1" />
+    <xs:attribute name="nstack" type="xs:int" default="-1" />
+    <xs:attribute name="nuserdata" type="xs:int" default="0" />
+    <xs:attribute name="nkey" type="xs:int" default="0" />
+    <xs:attribute name="nuser_body" type="xs:int" default="0" />
+    <xs:attribute name="nuser_jnt" type="xs:int" default="0" />
+    <xs:attribute name="nuser_geom" type="xs:int" default="0" />
+    <xs:attribute name="nuser_site" type="xs:int" default="0" />
+    <xs:attribute name="nuser_cam" type="xs:int" default="0" />
+    <xs:attribute name="nuser_tendon" type="xs:int" default="0" />
+    <xs:attribute name="nuser_actuator" type="xs:int" default="0" />
+    <xs:attribute name="nuser_sensor" type="xs:int" default="0" />
+  </xs:complexType>
+  <!--#endregion
+    size.xsd -->
+
+  <!--#region
+    visual.xsd -->
+  <xs:complexType name="visualGlobalType">
+    <xs:attribute name="cameraid" type="xs:int" />
+    <xs:attribute name="fovy" type="xs:double" default="45" />
+    <xs:attribute name="ipd" type="xs:double" default="0.068" />
+    <xs:attribute name="azimuth" type="xs:double" />
+    <xs:attribute name="elevation" type="xs:double" />
+    <xs:attribute name="linewidth" type="xs:double" default="1" />
+    <xs:attribute name="glow" type="xs:double" default="0.3" />
+    <xs:attribute name="offwidth" type="xs:int" default="640" />
+    <xs:attribute name="offheight" type="xs:int" default="480" />
+    <xs:attribute name="ellipsoidinertia" type="xs:boolean" />
+  </xs:complexType>
+
+  <xs:complexType name="visualQualityType">
+    <xs:attribute name="shadowsize" type="xs:int" default="1024" />
+    <xs:attribute name="offsamples" type="xs:int" default="4" />
+    <xs:attribute name="numslices" type="xs:int" default="28" />
+    <xs:attribute name="numstacks" type="xs:int" default="16" />
+    <xs:attribute name="numquads" type="xs:int" default="4" />
+  </xs:complexType>
+
+  <xs:complexType name="visualHeadlightType">
+    <xs:attribute name="ambient" type="threeRealsType" default="0.1 0.1 0.1" />
+    <xs:attribute name="diffuse" type="threeRealsType" default="0.4 0.4 0.4" />
+    <xs:attribute name="specular" type="threeRealsType" default="0.5 0.5 0.5" />
+    <xs:attribute name="active" type="xs:int" default="1" />
+  </xs:complexType>
+
+  <xs:complexType name="visualMapType">
+    <xs:attribute name="stiffness" type="xs:double" default="100" />
+    <xs:attribute name="stiffnessrot" type="xs:double" default="500" />
+    <xs:attribute name="force" type="xs:double" default="0.005" />
+    <xs:attribute name="torque" type="xs:double" default="0.1" />
+    <xs:attribute name="alpha" type="xs:double" default="0.3" />
+    <xs:attribute name="fogstart" type="xs:double" default="3" />
+    <xs:attribute name="fogend" type="xs:double" default="10" />
+    <xs:attribute name="znear" type="xs:double" default="0.01" />
+    <xs:attribute name="zfar" type="xs:double" default="50" />
+    <xs:attribute name="haze" type="xs:double" default="0.3" />
+    <xs:attribute name="shadowclip" type="xs:double" default="1" />
+    <xs:attribute name="shadowscale" type="xs:double" default="0.6" />
+    <xs:attribute name="actuatortendon" type="xs:double" default="2" />
+  </xs:complexType>
+
+  <xs:complexType name="visualScaleType">
+    <xs:attribute name="forcewidth" type="xs:double" default="0.1" />
+    <xs:attribute name="contactwidth" type="xs:double" default="0.3" />
+    <xs:attribute name="contactheight" type="xs:double" default="0.1" />
+    <xs:attribute name="connect" type="xs:double" default="0.2" />
+    <xs:attribute name="com" type="xs:double" default="0.4" />
+    <xs:attribute name="camera" type="xs:double" default="0.3" />
+    <xs:attribute name="light" type="xs:double" default="0.3" />
+    <xs:attribute name="selectpoint" type="xs:double" default="0.2" />
+    <xs:attribute name="jointlength" type="xs:double" default="1.0" />
+    <xs:attribute name="jointwidth" type="xs:double" default="0.1" />
+    <xs:attribute name="actuatorlength" type="xs:double" default="0.7" />
+    <xs:attribute name="actuatorwidth" type="xs:double" default="0.2" />
+    <xs:attribute name="framelength" type="xs:double" default="1.0" />
+    <xs:attribute name="framewidth" type="xs:double" default="0.1" />
+    <xs:attribute name="constraint" type="xs:double" default="0.1" />
+    <xs:attribute name="slidercrank" type="xs:double" default="0.2" />
+  </xs:complexType>
+
+  <xs:complexType name="visualRGBAType">
+    <xs:attribute name="fog" type="fourRealsType" default="0 0 0 1" />
+    <xs:attribute name="haze" type="fourRealsType" default="1 1 1 1" />
+    <xs:attribute name="force" type="fourRealsType" default="1 0.5 0.5 1" />
+    <xs:attribute name="inertia" type="fourRealsType" default="0.8 0.2 0.2 0.6" />
+    <xs:attribute name="joint" type="fourRealsType" default="0.2 0.6 0.8 1" />
+    <xs:attribute name="actuator" type="fourRealsType" default="0.2 0.25 0.2 1" />
+    <xs:attribute name="actuatornegative" type="fourRealsType" />
+    <xs:attribute name="actuatorpositive" type="fourRealsType" />
+    <xs:attribute name="com" type="fourRealsType" />
+    <xs:attribute name="camera" type="fourRealsType" default="0.6 0.9 0.6 1" />
+    <xs:attribute name="light" type="fourRealsType" default="0.6 0.6 0.9 1" />
+    <xs:attribute name="selectpoint" type="fourRealsType" default="0.9 0.9 0.1 1" />
+    <xs:attribute name="connect" type="fourRealsType" default="0.2 0.2 0.8 1" />
+    <xs:attribute name="contactpoint" type="fourRealsType" default="0.9 0.6 0.2 1" />
+    <xs:attribute name="contactforce" type="fourRealsType" default="0.7 0.9 0.9 1" />
+    <xs:attribute name="contactgap" type="fourRealsType" />
+    <xs:attribute name="rangefinder" type="fourRealsType" />
+    <xs:attribute name="contactfriction" type="fourRealsType" default="0.9 0.8 0.4 1" />
+    <xs:attribute name="contacttorque" type="fourRealsType" default="0.9 0.7 0.9 1" />
+    <xs:attribute name="constraint" type="fourRealsType" default="0.9 0 0 1" />
+    <xs:attribute name="slidercrank" type="fourRealsType" default="0.5 0.3 0.8 1" />
+    <xs:attribute name="crankbroken" type="fourRealsType" default="0.9 0 0 1" />
+  </xs:complexType>
+  <!--#endregion
+    visual.xsd -->
+
+  <!--#region
+    statistic.xsd -->
+  <xs:complexType name="statisticType">
+    <xs:attribute name="meanmass" type="xs:double" use="optional" />
+    <xs:attribute name="meaninertia" type="xs:double" use="optional" />
+    <xs:attribute name="meansize" type="xs:double" use="optional" />
+    <xs:attribute name="extent" type="xs:double" use="optional" />
+    <xs:attribute name="center" type="threeRealsType" use="optional" />
+  </xs:complexType>
+  <!--#endregion
+    statistic.xsd -->
+
+  <!--#region
+    default.xsd -->
+  <xs:complexType name="defaultType">
+    <xs:attribute name="class" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="defaultmainType">
+    <xs:attribute name="class" type="xs:string" default="main" />
+  </xs:complexType>
+
+  <xs:complexType name="defaultMeshType">
+    <xs:attribute name="scale" type="threeRealsType" default="1 1 1" />
+    <xs:attribute name="maxhullvert" type="xs:int" />
+    <xs:attribute name="inertia" type="meshinertiaType" />
+  </xs:complexType>
+
+  <xs:complexType name="defaultMaterialType">
+    <xs:attribute name="texture" type="xs:string" use="optional" />
+    <xs:attribute name="texrepeat" type="twoRealsType" default="1 1" />
+    <xs:attribute name="texuniform" type="xs:boolean" default="false" />
+    <xs:attribute name="emission" type="xs:double" default="0" />
+    <xs:attribute name="specular" type="xs:double" default="0.5" />
+    <xs:attribute name="shininess" type="xs:double" default="0.5" />
+    <xs:attribute name="reflectance" type="xs:double" default="0" />
+    <xs:attribute name="rgba" type="fourRealsType" default="1 1 1 1" />
+  </xs:complexType>
+
+  <xs:complexType name="defaultJointType">
+    <xs:attribute name="type" type="equalityJointtypeType" default="hinge" />
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="pos" type="threeRealsType" default="0 0 0" />
+    <xs:attribute name="axis" type="threeRealsType" default="0 0 1" />
+    <xs:attribute name="springdamper" type="twoRealsType" default="0 0" />
+    <xs:attribute name="limited" type="autoBoolType" />
+    <xs:attribute name="actuatorfrclimited" type="autoBoolType" />
+    <xs:attribute name="solimplimit" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solreflimit" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="solimpfriction" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solreffriction" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="stiffness" type="xs:double" default="0" />
+    <xs:attribute name="range" type="twoRealsType" default="0 0" />
+    <xs:attribute name="actuatorfrcrange" type="twoRealsType" />
+    <xs:attribute name="margin" type="xs:double" default="0" />
+    <xs:attribute name="ref" type="xs:double" default="0" />
+    <xs:attribute name="springref" type="xs:double" default="0" />
+    <xs:attribute name="armature" type="xs:double" default="0" />
+    <xs:attribute name="damping" type="xs:double" default="0" />
+    <xs:attribute name="frictionloss" type="xs:double" default="0" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="actuatorgravcomp" type="xs:boolean" />
+  </xs:complexType>
+
+  <xs:complexType name="defaultGeomType">
+    <xs:attribute name="type" type="geomtypeType" default="sphere" />
+    <xs:attribute name="contype" type="xs:int" default="1" />
+    <xs:attribute name="conaffinity" type="xs:int" default="1" />
+    <xs:attribute name="condim" type="xs:int" default="3" />
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="priority" type="xs:int" default="0" />
+    <xs:attribute name="size" type="upToThreeRealsType" default="0 0 0" />
+    <xs:attribute name="material" type="xs:string" use="optional" />
+    <xs:attribute name="rgba" type="fourRealsType" default="0.5 0.5 0.5 1" />
+    <xs:attribute name="friction" type="upToThreeRealsType" default="1 0.005 0.0001" />
+    <xs:attribute name="mass" type="xs:double" use="optional" />
+    <xs:attribute name="density" type="xs:double" default="1000" />
+    <xs:attribute name="shellinertia" type="xs:boolean" />
+    <xs:attribute name="solmix" type="xs:double" default="1" />
+    <xs:attribute name="solimp" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solref" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="margin" type="xs:double" default="0" />
+    <xs:attribute name="gap" type="xs:double" default="0" />
+    <xs:attribute name="fromto" type="sixRealsType" use="optional" />
+    <xs:attribute name="pos" type="threeRealsType" default="0 0 0" />
+    <xs:attribute name="quat" type="fourRealsType" default="1 0 0 0" />
+    <xs:attribute name="axisangle" type="fourRealsType" use="optional" />
+    <xs:attribute name="euler" type="threeRealsType" use="optional" />
+    <xs:attribute name="xyaxes" type="sixRealsType" use="optional" />
+    <xs:attribute name="zaxis" type="threeRealsType" use="optional" />
+    <xs:attribute name="hfield" type="xs:string" use="optional" />
+    <xs:attribute name="mesh" type="xs:string" use="optional" />
+    <xs:attribute name="fitscale" type="xs:double" default="1" />
+    <xs:attribute name="fluidshape" type="fluidshapeType" />
+    <xs:attribute name="fluidcoef" type="fiveRealsType" />
+    <xs:attribute name="user" type="infRealsType" />
+  </xs:complexType>
+
+  <xs:complexType name="defaultSiteType">
+    <xs:attribute name="type" type="sitetypeType" default="sphere" />
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="material" type="xs:string" use="optional" />
+    <xs:attribute name="rgba" type="fourRealsType" default="0.5 0.5 0.5 1" />
+    <xs:attribute name="size" type="upToThreeRealsType" default="0.005 0.005 0.005" />
+    <xs:attribute name="fromto" type="sixRealsType" use="optional" />
+    <xs:attribute name="pos" type="threeRealsType" default="0 0 0" />
+    <xs:attribute name="quat" type="fourRealsType" default="1 0 0 0" />
+    <xs:attribute name="axisangle" type="fourRealsType" use="optional" />
+    <xs:attribute name="euler" type="threeRealsType" use="optional" />
+    <xs:attribute name="xyaxes" type="sixRealsType" use="optional" />
+    <xs:attribute name="zaxis" type="threeRealsType" use="optional" />
+    <xs:attribute name="user" type="infRealsType" />
+  </xs:complexType>
+
+  <xs:complexType name="defaultCameraType">
+    <xs:attribute name="mode" type="cameramodeType" default="fixed" />
+    <xs:attribute name="target" type="xs:string" use="optional" />
+    <xs:attribute name="fovy" type="xs:double" default="45" />
+    <xs:attribute name="ipd" type="xs:double" default="0.068" />
+    <xs:attribute name="pos" type="threeRealsType" default="0 0 0" />
+    <xs:attribute name="quat" type="fourRealsType" default="1 0 0 0" />
+    <xs:attribute name="axisangle" type="fourRealsType" use="optional" />
+    <xs:attribute name="euler" type="threeRealsType" use="optional" />
+    <xs:attribute name="xyaxes" type="sixRealsType" use="optional" />
+    <xs:attribute name="zaxis" type="threeRealsType" use="optional" />
+    <xs:attribute name="resolution" type="twoIntsType" />
+    <xs:attribute name="focal" type="twoRealsType" />
+    <xs:attribute name="focalpixel" type="twoRealsType" />
+    <xs:attribute name="principal" type="twoRealsType" />
+    <xs:attribute name="principalpixel" type="twoRealsType" />
+    <xs:attribute name="sensorsize" type="twoRealsType" />
+    <xs:attribute name="user" type="infRealsType" />
+  </xs:complexType>
+
+  <xs:complexType name="defaultLightType">
+    <xs:attribute name="mode" type="cameramodeType" default="fixed" />
+    <xs:attribute name="target" type="xs:string" use="optional" />
+    <xs:attribute name="directional" type="xs:boolean" default="false" />
+    <xs:attribute name="type" type="lighttypeType" />
+    <xs:attribute name="texture" type="xs:string" />
+    <xs:attribute name="castshadow" type="xs:boolean" default="true" />
+    <xs:attribute name="active" type="xs:boolean" default="true" />
+    <xs:attribute name="pos" type="threeRealsType" default="0 0 0" />
+    <xs:attribute name="dir" type="threeRealsType" default="0 0 -1" />
+    <xs:attribute name="attenuation" type="threeRealsType" default="1 0 0" />
+    <xs:attribute name="cutoff" type="xs:double" default="45" />
+    <xs:attribute name="exponent" type="xs:double" default="10" />
+    <xs:attribute name="ambient" type="threeRealsType" default="0 0 0" />
+    <xs:attribute name="diffuse" type="threeRealsType" default="0.7 0.7 0.7" />
+    <xs:attribute name="specular" type="threeRealsType" default="0.3 0.3 0.3" />
+    <xs:attribute name="bulbradius" type="xs:double" />
+    <xs:attribute name="intensity" type="xs:double" />
+    <xs:attribute name="range" type="xs:double" />
+  </xs:complexType>
+
+  <xs:complexType name="defaultPairType">
+    <xs:attribute name="condim" type="xs:int" default="3" />
+    <xs:attribute name="friction" type="upToFiveRealsType" default="1 1 0.005 0.0001 0.0001" />
+    <xs:attribute name="solimp" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solref" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="solreffriction" type="twoRealsType" />
+    <xs:attribute name="margin" type="xs:double" default="0" />
+    <xs:attribute name="gap" type="xs:double" default="0" />
+  </xs:complexType>
+
+  <xs:complexType name="defaultVisualQualityType">
+    <xs:attribute name="active" type="xs:boolean" default="true" />
+    <xs:attribute name="solimp" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solref" type="twoRealsType" default="0.02 1" />
+  </xs:complexType>
+
+  <xs:complexType name="defaultTendonType">
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="limited" type="autoBoolType" />
+    <xs:attribute name="actuatorfrclimited" type="autoBoolType" />
+    <xs:attribute name="range" type="twoRealsType" default="0 0" />
+    <xs:attribute name="actuatorfrcrange" type="twoRealsType" />
+    <xs:attribute name="solimplimit" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solreflimit" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="solimpfriction" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solreffriction" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="margin" type="xs:double" default="0" />
+    <xs:attribute name="frictionloss" type="xs:double" default="0" />
+    <xs:attribute name="width" type="xs:double" default="0.003" />
+    <xs:attribute name="material" type="xs:string" use="optional" />
+    <xs:attribute name="rgba" type="fourRealsType" default="0.5 0.5 0.5 1" />
+    <xs:attribute name="stiffness" type="xs:double" default="0" />
+    <xs:attribute name="damping" type="xs:double" default="0" />
+    <xs:attribute name="user" type="infRealsType" />
+  </xs:complexType>
+
+  <xs:complexType name="defaultGeneralType">
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="ctrllimited" type="autoBoolType" default="false" />
+    <xs:attribute name="forcelimited" type="autoBoolType" default="false" />
+    <xs:attribute name="ctrlrange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="forcerange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="lengthrange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="gear" type="upToSixRealsType" default="1 0 0 0 0 0" />
+    <xs:attribute name="cranklength" type="xs:double" default="0" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="dyntype" type="dyntypeType" default="none" />
+    <xs:attribute name="gaintype" type="gaintypeType" default="fixed" />
+    <xs:attribute name="biastype" type="biastypeType" default="none" />
+    <xs:attribute name="dynprm" type="upToTenRealsType" default="1 0 0 0 0 0 0 0 0 0" />
+    <xs:attribute name="gainprm" type="upToTenRealsType" default="1 0 0 0 0 0 0 0 0 0" />
+    <xs:attribute name="biasprm" type="upToTenRealsType" default="0 0 0 0 0 0 0 0 0 0" />
+    <xs:attribute name="actearly" type="xs:boolean" />
+  </xs:complexType>
+
+  <xs:complexType name="defaultMotorType">
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="ctrllimited" type="autoBoolType" default="false" />
+    <xs:attribute name="forcelimited" type="autoBoolType" default="false" />
+    <xs:attribute name="ctrlrange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="forcerange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="lengthrange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="gear" type="upToSixRealsType" default="1 0 0 0 0 0" />
+    <xs:attribute name="cranklength" type="xs:double" default="0" />
+    <xs:attribute name="tendon" type="xs:string" />
+    <xs:attribute name="cranksite" type="xs:string" />
+    <xs:attribute name="slidersite" type="xs:string" />
+    <xs:attribute name="user" type="infRealsType" />
+  </xs:complexType>
+
+  <xs:complexType name="defaultPositionType">
+    <xs:complexContent>
+      <xs:extension base="defaultMotorType">
+        <xs:attribute name="kp" type="xs:double" default="1" />
+        <xs:attribute name="kv" type="xs:double" />
+        <xs:attribute name="dampratio" type="xs:double" />
+        <xs:attribute name="timeconst" type="xs:double" />
+        <xs:attribute name="inheritrange" type="xs:double" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="defaultVelocityType">
+    <xs:complexContent>
+      <xs:extension base="defaultMotorType">
+        <xs:attribute name="kv" type="xs:double" default="1" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="defaultIntVelocityType">
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="ctrllimited" type="autoBoolType" />
+    <xs:attribute name="forcelimited" type="autoBoolType" />
+    <xs:attribute name="ctrlrange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="forcerange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="actrange" type="twoRealsType" />
+    <xs:attribute name="gear" type="upToSixRealsType" default="1 0 0 0 0 0" />
+    <xs:attribute name="cranklength" type="xs:double" default="0" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="kp" type="xs:double" />
+    <xs:attribute name="kv" type="xs:double" />
+    <xs:attribute name="dampratio" type="xs:double" />
+    <xs:attribute name="inheritrange" type="xs:double" />
+  </xs:complexType>
+
+  <xs:complexType name="defaultDamperType">
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="forcelimited" type="autoBoolType" />
+    <xs:attribute name="ctrlrange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="forcerange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="gear" type="upToSixRealsType" default="1 0 0 0 0 0" />
+    <xs:attribute name="cranklength" type="xs:double" default="0" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="kv" type="xs:double" />
+  </xs:complexType>
+
+  <xs:complexType name="defaultCylinderType">
+    <xs:complexContent>
+      <xs:extension base="defaultMotorType">
+        <xs:attribute name="timeconst" type="xs:double" default="1" />
+        <xs:attribute name="area" type="xs:double" default="1" />
+        <xs:attribute name="diameter" type="xs:double" use="optional" />
+        <xs:attribute name="bias" type="threeRealsType" default="0 0 0" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="defaultMuscleType">
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="ctrllimited" type="autoBoolType" default="false" />
+    <xs:attribute name="forcelimited" type="autoBoolType" default="false" />
+    <xs:attribute name="ctrlrange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="forcerange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="lengthrange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="gear" type="upToSixRealsType" default="1 0 0 0 0 0" />
+    <xs:attribute name="cranklength" type="xs:double" default="0" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="timeconst" type="twoRealsType" default="0.01 0.04" />
+    <xs:attribute name="range" type="twoRealsType" default="0.75 1.05" />
+    <xs:attribute name="force" type="xs:double" default="-1" />
+    <xs:attribute name="scale" type="xs:double" default="200" />
+    <xs:attribute name="lmin" type="xs:double" default="0.5" />
+    <xs:attribute name="lmax" type="xs:double" default="1.6" />
+    <xs:attribute name="vmax" type="xs:double" default="1.5" />
+    <xs:attribute name="fpmax" type="xs:double" default="1.3" />
+    <xs:attribute name="fvmax" type="xs:double" default="1.2" />
+  </xs:complexType>
+
+  <xs:complexType name="defaultAdhesionType">
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="forcelimited" type="autoBoolType" />
+    <xs:attribute name="ctrlrange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="forcerange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="gain" type="xs:double" />
+  </xs:complexType>
+
+  <!--#endregion
+    default.xsd -->
+
+  <!--#region
+    custom.xsd -->
+  <xs:complexType name="customNumericType">
+    <xs:attribute name="name" type="xs:string" use="required" />
+    <xs:attribute name="size" type="xs:int" use="optional" />
+    <xs:attribute name="data" type="infRealsType" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="customTextType">
+    <xs:attribute name="name" type="xs:string" use="required" />
+    <xs:attribute name="data" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="customTupleType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="customElementType">
+    <xs:attribute name="objtype" type="customobjtypeType" use="required" />
+    <xs:attribute name="objname" type="xs:string" use="required" />
+    <xs:attribute name="prm" type="xs:double" default="0" />
+  </xs:complexType>
+  <!--#endregion
+    custom.xsd -->
+
+  <!--#region
+    asset.xsd -->
+  <xs:complexType name="assetTextureType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="type" type="assetTexturetypeType" default="cube" />
+    <xs:attribute name="content_type" type="assetTextureContentType" />
+    <xs:attribute name="colorspace" type="colorspaceType" />
+    <xs:attribute name="file" type="xs:string" use="optional" />
+    <xs:attribute name="gridsize" type="twoIntsType" default="1 1" />
+    <xs:attribute name="gridlayout" type="xs:string" default="............" />
+    <xs:attribute name="fileright" type="xs:string" use="optional" />
+    <xs:attribute name="fileleft" type="xs:string" use="optional" />
+    <xs:attribute name="fileup" type="xs:string" use="optional" />
+    <xs:attribute name="filedown" type="xs:string" use="optional" />
+    <xs:attribute name="filefront" type="xs:string" use="optional" />
+    <xs:attribute name="fileback" type="xs:string" use="optional" />
+    <xs:attribute name="builtin" type="builtinType" default="none" />
+    <xs:attribute name="rgb1" type="threeRealsType" default="0.8 0.8 0.8" />
+    <xs:attribute name="rgb2" type="threeRealsType" default="0.5 0.5 0.5" />
+    <xs:attribute name="mark" type="markType" default="none" />
+    <xs:attribute name="markrgb" type="threeRealsType" default="0 0 0" />
+    <xs:attribute name="random" type="xs:double" default="0.01" />
+    <xs:attribute name="width" type="xs:int" default="0" />
+    <xs:attribute name="height" type="xs:int" default="0" />
+    <xs:attribute name="hflip" type="xs:boolean" default="false" />
+    <xs:attribute name="vflip" type="xs:boolean" default="false" />
+  </xs:complexType>
+
+  <xs:complexType name="assetHfieldType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="content_type" type="assetHfieldContentType" />
+    <xs:attribute name="file" type="xs:string" use="optional" />
+    <xs:attribute name="nrow" type="xs:int" default="0" />
+    <xs:attribute name="ncol" type="xs:int" default="0" />
+    <xs:attribute name="size" type="upToFourRealsType" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="assetMeshType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="content_type" type="assetMeshContentType" />
+    <xs:attribute name="file" type="xs:string" use="optional" />
+    <xs:attribute name="scale" type="threeRealsType" default="1 1 1" />
+    <xs:attribute name="smoothnormal" type="xs:boolean" default="false" />
+    <xs:attribute name="vertex" type="infRealsType" use="optional" />
+    <xs:attribute name="normal" type="infRealsType" use="optional" />
+    <xs:attribute name="texcoord" type="infRealsType" use="optional" />
+    <xs:attribute name="face" type="infIntsType" use="optional" />
+    <xs:attribute name="refpos" type="threeRealsType" default="0 0 0" />
+    <xs:attribute name="refquat" type="fourRealsType" default="1 0 0 0" />
+    <xs:attribute name="maxhullvert" type="xs:int" />
+    <xs:attribute name="inertia" type="meshinertiaType" />
+    <xs:attribute name="builtin" type="meshbuiltinType" />
+    <xs:attribute name="parameters" type="infRealsType" />
+    <xs:attribute name="material" type="xs:string" />
+  </xs:complexType>
+
+  <xs:complexType name="assetSkinType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="file" type="xs:string" use="optional" />
+    <xs:attribute name="vertex" type="infRealsType" use="optional" />
+    <xs:attribute name="texcoord" type="infRealsType" use="optional" />
+    <xs:attribute name="face" type="infIntsType" use="optional" />
+    <xs:attribute name="inflate" type="xs:double" default="0" />
+    <xs:attribute name="material" type="xs:string" use="optional" />
+    <xs:attribute name="rgba" type="fourRealsType" default="0.5 0.5 0.5 1" />
+    <xs:attribute name="group" type="xs:int" />
+  </xs:complexType>
+
+  <xs:complexType name="assetBoneType">
+    <xs:attribute name="body" type="xs:string" use="required" />
+    <xs:attribute name="bindpos" type="threeRealsType" use="required" />
+    <xs:attribute name="bindquat" type="fourRealsType" use="required" />
+    <xs:attribute name="vertid" type="infIntsType" use="optional" />
+    <xs:attribute name="vertweight" type="infRealsType" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="assetMaterialType">
+    <xs:attribute name="name" type="xs:string" use="required" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="texture" type="xs:string" use="optional" />
+    <xs:attribute name="texrepeat" type="twoRealsType" default="1 1" />
+    <xs:attribute name="texuniform" type="xs:boolean" default="false" />
+    <xs:attribute name="emission" type="xs:double" default="0" />
+    <xs:attribute name="specular" type="xs:double" default="0.5" />
+    <xs:attribute name="shininess" type="xs:double" default="0.5" />
+    <xs:attribute name="reflectance" type="xs:double" default="0" />
+    <xs:attribute name="rgba" type="fourRealsType" default="1 1 1 1" />
+  </xs:complexType>
+
+  <xs:complexType name="assetLayerType">
+    <xs:attribute name="texture" type="xs:string" use="required" />
+    <xs:attribute name="role" type="roleType" use="required" />
+  </xs:complexType>
+  <!--#endregion
+    material.xsd -->
+
+  <!--#region
+    body.xsd -->
+  <xs:complexType name="bodyType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="childclass" type="xs:string" use="optional" />
+    <xs:attribute name="mocap" type="xs:boolean" default="false" />
+    <xs:attribute name="pos" type="threeRealsType" use="optional" />
+    <xs:attribute name="quat" type="fourRealsType" default="1 0 0 0" />
+    <xs:attribute name="axisangle" type="fourRealsType" use="optional" />
+    <xs:attribute name="euler" type="threeRealsType" use="optional" />
+    <xs:attribute name="xyaxes" type="sixRealsType" use="optional" />
+    <xs:attribute name="zaxis" type="threeRealsType" use="optional" />
+    <xs:attribute name="gravcomp" type="xs:double" />
+    <xs:attribute name="user" type="infRealsType" />
+  </xs:complexType>
+
+  <xs:complexType name="bodyInertialType">
+    <xs:attribute name="pos" type="threeRealsType" use="required" />
+    <xs:attribute name="quat" type="fourRealsType" default="1 0 0 0" />
+    <xs:attribute name="axisangle" type="fourRealsType" use="optional" />
+    <xs:attribute name="euler" type="threeRealsType" use="optional" />
+    <xs:attribute name="xyaxes" type="sixRealsType" use="optional" />
+    <xs:attribute name="zaxis" type="threeRealsType" use="optional" />
+    <xs:attribute name="mass" type="xs:double" use="required" />
+    <xs:attribute name="diaginertia" type="threeRealsType" use="optional" />
+    <xs:attribute name="fullinertia" type="sixRealsType" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="bodyJointType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="type" type="equalityJointtypeType" default="hinge" />
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="pos" type="threeRealsType" default="0 0 0" />
+    <xs:attribute name="axis" type="threeRealsType" default="0 0 1" />
+    <xs:attribute name="springdamper" type="twoRealsType" default="0 0" />
+    <xs:attribute name="limited" type="xs:boolean" default="false" />
+    <xs:attribute name="actuatorfrclimited" type="autoBoolType" />
+    <xs:attribute name="actuatorfrcrange" type="twoRealsType" />
+    <xs:attribute name="solimplimit" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solreflimit" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="solimpfriction" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solreffriction" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="stiffness" type="xs:double" default="0" />
+    <xs:attribute name="range" type="twoRealsType" default="0 0" />
+    <xs:attribute name="margin" type="xs:double" default="0" />
+    <xs:attribute name="ref" type="xs:double" default="0" />
+    <xs:attribute name="springref" type="xs:double" default="0" />
+    <xs:attribute name="armature" type="xs:double" default="0" />
+    <xs:attribute name="damping" type="xs:double" default="0" />
+    <xs:attribute name="frictionloss" type="xs:double" default="0" />
+    <xs:attribute name="actuatorgravcomp" type="xs:boolean" />
+    <xs:attribute name="user" type="infRealsType" />
+  </xs:complexType>
+
+  <xs:complexType name="bodyFreeJointType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="align" type="autoBoolType" />
+  </xs:complexType>
+
+  <xs:complexType name="bodyGeomType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="type" type="geomtypeType" default="sphere" />
+    <xs:attribute name="contype" type="xs:int" default="1" />
+    <xs:attribute name="conaffinity" type="xs:int" default="1" />
+    <xs:attribute name="condim" type="xs:int" default="3" />
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="priority" type="xs:int" default="0" />
+    <xs:attribute name="size" type="upToThreeRealsType" default="0 0 0" />
+    <xs:attribute name="material" type="xs:string" use="optional" />
+    <xs:attribute name="rgba" type="fourRealsType" default="0.5 0.5 0.5 1" />
+    <xs:attribute name="friction" type="upToThreeRealsType" default="1 0.005 0.0001" />
+    <xs:attribute name="mass" type="xs:double" use="optional" />
+    <xs:attribute name="density" type="xs:double" default="1000" />
+    <xs:attribute name="shellinertia" type="xs:boolean" />
+    <xs:attribute name="solmix" type="xs:double" default="1" />
+    <xs:attribute name="solimp" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solref" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="margin" type="xs:double" default="0" />
+    <xs:attribute name="gap" type="xs:double" default="0" />
+    <xs:attribute name="fromto" type="sixRealsType" use="optional" />
+    <xs:attribute name="pos" type="threeRealsType" default="0 0 0" />
+    <xs:attribute name="quat" type="fourRealsType" default="1 0 0 0" />
+    <xs:attribute name="axisangle" type="fourRealsType" use="optional" />
+    <xs:attribute name="euler" type="threeRealsType" use="optional" />
+    <xs:attribute name="xyaxes" type="sixRealsType" use="optional" />
+    <xs:attribute name="zaxis" type="threeRealsType" use="optional" />
+    <xs:attribute name="hfield" type="xs:string" use="optional" />
+    <xs:attribute name="mesh" type="xs:string" use="optional" />
+    <xs:attribute name="fitscale" type="xs:double" default="1" />
+    <xs:attribute name="fluidshape" type="fluidshapeType" />
+    <xs:attribute name="fluidcoef" type="fiveRealsType" />
+    <xs:attribute name="user" type="infRealsType" />
+  </xs:complexType>
+
+  <xs:complexType name="bodySiteType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="type" type="sitetypeType" default="sphere" />
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="material" type="xs:string" use="optional" />
+    <xs:attribute name="rgba" type="fourRealsType" default="0.5 0.5 0.5 1" />
+    <xs:attribute name="size" type="upToThreeRealsType" default="0.005 0.005 0.005" />
+    <xs:attribute name="fromto" type="sixRealsType" use="optional" />
+    <xs:attribute name="pos" type="threeRealsType" default="0 0 0" />
+    <xs:attribute name="quat" type="fourRealsType" default="1 0 0 0" />
+    <xs:attribute name="axisangle" type="fourRealsType" use="optional" />
+    <xs:attribute name="euler" type="threeRealsType" use="optional" />
+    <xs:attribute name="xyaxes" type="sixRealsType" use="optional" />
+    <xs:attribute name="zaxis" type="threeRealsType" use="optional" />
+    <xs:attribute name="user" type="infRealsType" />
+  </xs:complexType>
+
+  <xs:complexType name="bodyCameraType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="mode" type="cameramodeType" default="fixed" />
+    <xs:attribute name="target" type="xs:string" use="optional" />
+    <xs:attribute name="fovy" type="xs:double" default="45" />
+    <xs:attribute name="ipd" type="xs:double" default="0.068" />
+    <xs:attribute name="pos" type="threeRealsType" default="0 0 0" />
+    <xs:attribute name="quat" type="fourRealsType" default="1 0 0 0" />
+    <xs:attribute name="axisangle" type="fourRealsType" use="optional" />
+    <xs:attribute name="euler" type="threeRealsType" use="optional" />
+    <xs:attribute name="xyaxes" type="sixRealsType" use="optional" />
+    <xs:attribute name="zaxis" type="threeRealsType" use="optional" />
+    <xs:attribute name="resolution" type="twoIntsType" />
+    <xs:attribute name="focal" type="twoRealsType" />
+    <xs:attribute name="focalpixel" type="twoRealsType" />
+    <xs:attribute name="principal" type="twoRealsType" />
+    <xs:attribute name="principalpixel" type="twoRealsType" />
+    <xs:attribute name="sensorsize" type="twoRealsType" />
+    <xs:attribute name="user" type="infRealsType" />
+  </xs:complexType>
+
+  <xs:complexType name="bodyLightType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="mode" type="cameramodeType" default="fixed" />
+    <xs:attribute name="target" type="xs:string" use="optional" />
+    <xs:attribute name="directional" type="xs:boolean" default="false" />
+    <xs:attribute name="type" type="xs:string" />
+    <xs:attribute name="texture" type="xs:string" />
+    <xs:attribute name="castshadow" type="xs:boolean" default="true" />
+    <xs:attribute name="active" type="xs:boolean" default="true" />
+    <xs:attribute name="pos" type="threeRealsType" default="0 0 0" />
+    <xs:attribute name="dir" type="threeRealsType" default="0 0 -1" />
+    <xs:attribute name="attenuation" type="threeRealsType" default="1 0 0" />
+    <xs:attribute name="cutoff" type="xs:double" default="45" />
+    <xs:attribute name="exponent" type="xs:double" default="10" />
+    <xs:attribute name="ambient" type="threeRealsType" default="0 0 0" />
+    <xs:attribute name="diffuse" type="threeRealsType" default="0.7 0.7 0.7" />
+    <xs:attribute name="specular" type="threeRealsType" default="0.3 0.3 0.3" />
+    <xs:attribute name="bulbradius" type="xs:double" />
+    <xs:attribute name="intensity" type="xs:double" />
+    <xs:attribute name="range" type="xs:double" />
+  </xs:complexType>
+
+  <xs:complexType name="bodyCompositeType">
+    <xs:attribute name="prefix" type="xs:string" use="optional" />
+    <xs:attribute name="type" type="bodyCompositetypeType" use="required" />
+    <xs:attribute name="count" type="upToThreeIntsType" use="required" />
+    <xs:attribute name="offset" type="threeRealsType" default="0 0 0" />
+    <xs:attribute name="quat" type="fourRealsType" />
+    <xs:attribute name="vertex" type="xs:string" />
+    <xs:attribute name="initial" type="xs:string" />
+    <xs:attribute name="curve" type="xs:string" />
+    <xs:attribute name="size" type="threeRealsType" />
+  </xs:complexType>
+
+  <xs:complexType name="bodyCompositeequalityJointType">
+    <xs:attribute name="kind" type="jointkindType" use="required" />
+    <xs:attribute name="solimpfix" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solreffix" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="stiffness" type="xs:double" default="0" />
+    <xs:attribute name="damping" type="xs:double" default="0" />
+    <xs:attribute name="armature" type="xs:double" default="0" />
+    <xs:attribute name="limited" type="xs:boolean" default="false" />
+    <xs:attribute name="range" type="twoRealsType" default="0 0" />
+    <xs:attribute name="margin" type="xs:double" default="0" />
+    <xs:attribute name="solreflimit" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="solimplimit" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="frictionloss" type="xs:double" default="0" />
+    <xs:attribute name="solreffriction" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="solimpfriction" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+  </xs:complexType>
+
+  <xs:complexType name="bodyTendonType">
+    <xs:attribute name="kind" type="tendonkindType" use="required" />
+    <xs:attribute name="solimpfix" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solreffix" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="stiffness" type="xs:double" default="0" />
+    <xs:attribute name="damping" type="xs:double" default="0" />
+    <xs:attribute name="limited" type="xs:boolean" default="false" />
+    <xs:attribute name="range" type="twoRealsType" default="0 0" />
+    <xs:attribute name="margin" type="xs:double" default="0" />
+    <xs:attribute name="solimplimit" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solreflimit" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="frictionloss" type="xs:double" default="0" />
+    <xs:attribute name="solimpfriction" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solreffriction" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="material" type="xs:string" use="optional" />
+    <xs:attribute name="rgba" type="fourRealsType" default="0.5 0.5 0.5 1" />
+    <xs:attribute name="width" type="xs:double" default="0.003" />
+  </xs:complexType>
+
+  <xs:complexType name="bodyCompositegeomType">
+    <xs:attribute name="type" type="geomtypeType" default="sphere" />
+    <xs:attribute name="contype" type="xs:int" default="1" />
+    <xs:attribute name="conaffinity" type="xs:int" default="1" />
+    <xs:attribute name="condim" type="xs:int" default="3" />
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="priority" type="xs:int" default="0" />
+    <xs:attribute name="size" type="upToThreeRealsType" default="0 0 0" />
+    <xs:attribute name="material" type="xs:string" use="optional" />
+    <xs:attribute name="rgba" type="fourRealsType" default="0.5 0.5 0.5 1" />
+    <xs:attribute name="friction" type="upToThreeRealsType" default="1 0.005 0.0001" />
+    <xs:attribute name="mass" type="xs:double" use="optional" />
+    <xs:attribute name="density" type="xs:double" default="1000" />
+    <xs:attribute name="shellinertia" type="xs:boolean" />
+    <xs:attribute name="solmix" type="xs:double" default="1" />
+    <xs:attribute name="solimp" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solref" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="margin" type="xs:double" default="0" />
+    <xs:attribute name="gap" type="xs:double" default="0" />
+    <xs:attribute name="fluidshape" type="fluidshapeType" />
+    <xs:attribute name="fluidcoef" type="fiveRealsType" />
+  </xs:complexType>
+
+  <xs:complexType name="bodyCompositesiteType">
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="size" type="upToThreeRealsType" default="0.005 0.005 0.005" />
+    <xs:attribute name="material" type="xs:string" use="optional" />
+    <xs:attribute name="rgba" type="fourRealsType" default="0.5 0.5 0.5 1" />
+    <xs:attribute name="subgrid" type="xs:int" default="0" />
+  </xs:complexType>
+
+  <xs:complexType name="bodyAssetSkinType">
+    <xs:attribute name="texcoord" type="xs:boolean" default="false" />
+    <xs:attribute name="material" type="xs:string" use="optional" />
+    <xs:attribute name="rgba" type="fourRealsType" default="0.5 0.5 0.5 1" />
+    <xs:attribute name="inflate" type="xs:double" default="0" />
+    <xs:attribute name="subgrid" type="xs:int" default="0" />
+  </xs:complexType>
+
+  <xs:complexType name="bodyPinType">
+    <xs:attribute name="coord" type="twoIntsType" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="bodyFlexcompType">
+    <xs:attribute name="name" type="xs:string" />
+    <xs:attribute name="type" type="bodyFlexcomptypeType" />
+    <xs:attribute name="count" type="threeIntsType" />
+    <xs:attribute name="spacing" type="threeRealsType" />
+    <xs:attribute name="scale" type="threeRealsType" />
+    <xs:attribute name="radius" type="xs:double" />
+    <xs:attribute name="rigid" type="xs:boolean" />
+    <xs:attribute name="mass" type="xs:double" />
+    <xs:attribute name="inertiabox" type="xs:double" />
+    <xs:attribute name="file" type="xs:string" />
+    <xs:attribute name="point" type="xs:string" />
+    <xs:attribute name="element" type="xs:string" />
+    <xs:attribute name="texcoord" type="xs:string" />
+    <xs:attribute name="elemtexcoord" type="xs:string" />
+    <xs:attribute name="material" type="xs:string" />
+    <xs:attribute name="rgba" type="fourRealsType" />
+    <xs:attribute name="flatskin" type="xs:int" />
+    <xs:attribute name="pos" type="threeRealsType" />
+    <xs:attribute name="quat" type="fourRealsType" />
+    <xs:attribute name="axisangle" type="fourRealsType" />
+    <xs:attribute name="xyaxis" type="sixRealsType" />
+    <xs:attribute name="zaxis" type="threeRealsType" />
+    <xs:attribute name="euler" type="threeRealsType" />
+    <xs:attribute name="origin" type="threeRealsType" />
+    <xs:attribute name="dim" type="xs:int" use="required" />
+    <xs:attribute name="dof" type="xs:string" />
+  </xs:complexType>
+
+  <xs:complexType name="bodyFlexcompedgeType">
+    <xs:attribute name="equality" type="xs:boolean" />
+    <xs:attribute name="solref" type="twoRealsType" />
+    <xs:attribute name="solimp" type="fiveRealsType" />
+    <xs:attribute name="stiffness" type="xs:double" />
+    <xs:attribute name="damping" type="xs:double" />
+  </xs:complexType>
+
+  <xs:complexType name="bodyFlexcompdeformableElasticityType">
+    <xs:attribute name="young" type="xs:double" />
+    <xs:attribute name="poisson" type="xs:double" />
+    <xs:attribute name="thickness" type="xs:double" />
+    <xs:attribute name="damping" type="xs:double" />
+    <xs:attribute name="elastic2d" type="elastic2dType" />
+  </xs:complexType>
+
+  <xs:complexType name="bodyFlexcompcontactType">
+    <xs:attribute name="contype" type="xs:int" />
+    <xs:attribute name="conaffinity" type="xs:int" />
+    <xs:attribute name="condim" type="xs:int" />
+    <xs:attribute name="priority" type="xs:int" />
+    <xs:attribute name="friction" type="upToThreeRealsType" />
+    <xs:attribute name="solmix" type="xs:double" />
+    <xs:attribute name="solref" type="twoRealsType" />
+    <xs:attribute name="solimp" type="fiveRealsType" />
+    <xs:attribute name="margin" type="xs:double" />
+    <xs:attribute name="gap" type="xs:double" />
+    <xs:attribute name="internal" type="xs:boolean" />
+    <xs:attribute name="selfcollide" type="selfcollideType" />
+    <xs:attribute name="vertcollide" type="xs:boolean" />
+    <xs:attribute name="activelayers" type="xs:int" />
+    <xs:attribute name="passive" type="xs:boolean" />
+  </xs:complexType>
+
+  <xs:complexType name="bodyFlexcompbodyPinType">
+    <xs:attribute name="id" type="xs:string" />
+    <xs:attribute name="range" type="xs:string" />
+    <xs:attribute name="grid" type="xs:string" />
+    <xs:attribute name="gridrange" type="xs:string" />
+  </xs:complexType>
+
+  <!--#endregion
+    body.xsd -->
+
+  <!--#region
+    contact.xsd -->
+  <xs:complexType name="contactPairType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="geom1" type="xs:string" use="required" />
+    <xs:attribute name="geom2" type="xs:string" use="required" />
+    <xs:attribute name="condim" type="xs:int" default="3" />
+    <xs:attribute name="friction" type="upToFiveRealsType" default="1 1 0.005 0.0001 0.0001" />
+    <xs:attribute name="solimp" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solref" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="solreffriction" type="twoRealsType" />
+    <xs:attribute name="margin" type="xs:double" default="0" />
+    <xs:attribute name="gap" type="xs:double" default="0" />
+  </xs:complexType>
+
+  <xs:complexType name="contactExcludeType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="body1" type="xs:string" use="required" />
+    <xs:attribute name="body2" type="xs:string" use="required" />
+  </xs:complexType>
+  <!-- Removed unused contactAttachType -->
+  <!--#endregion
+    contact.xsd -->
+
+  <!--#region
+    equality.xsd -->
+  <xs:complexType name="equalityConnectType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="active" type="xs:boolean" default="true" />
+    <xs:attribute name="solimp" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solref" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="body1" type="xs:string" use="optional" />
+    <xs:attribute name="body2" type="xs:string" use="optional" />
+    <xs:attribute name="anchor" type="threeRealsType" use="optional" />
+    <xs:attribute name="site1" type="xs:string" />
+    <xs:attribute name="site2" type="xs:string" />
+  </xs:complexType>
+
+  <xs:complexType name="equalityWeldType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="active" type="xs:boolean" default="true" />
+    <xs:attribute name="solimp" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solref" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="body1" type="xs:string" use="optional" />
+    <xs:attribute name="body2" type="xs:string" use="optional" />
+    <xs:attribute name="relpose" type="sevenRealsType" default="0 1 0 0 0 0 0" />
+    <xs:attribute name="anchor" type="threeRealsType" />
+    <xs:attribute name="site1" type="xs:string" />
+    <xs:attribute name="site2" type="xs:string" />
+    <xs:attribute name="torquescale" type="xs:double" />
+  </xs:complexType>
+
+  <xs:complexType name="equalityJointType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="active" type="xs:boolean" default="true" />
+    <xs:attribute name="solimp" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solref" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="joint1" type="xs:string" use="required" />
+    <xs:attribute name="joint2" type="xs:string" use="optional" />
+    <xs:attribute name="polycoef" type="fiveRealsType" default="0 1 0 0 0" />
+  </xs:complexType>
+
+  <xs:complexType name="equalityFlexType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="active" type="xs:boolean" default="true" />
+    <xs:attribute name="solimp" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solref" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="flex" type="xs:string" />
+  </xs:complexType>
+
+  <xs:complexType name="equalityTendonType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="active" type="xs:boolean" default="true" />
+    <xs:attribute name="solimp" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solref" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="tendon1" type="xs:string" use="required" />
+    <xs:attribute name="tendon2" type="xs:string" use="optional" />
+    <xs:attribute name="polycoef" type="fiveRealsType" default="0 1 0 0 0" />
+  </xs:complexType>
+  <!--#endregion
+    equality.xsd -->
+
+  <!--#region
+    tendon.xsd -->
+  <xs:complexType name="tendonSpatialType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="limited" type="xs:boolean" default="false" />
+    <xs:attribute name="range" type="twoRealsType" default="0 0" />
+    <xs:attribute name="solimplimit" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solreflimit" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="solimpfriction" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solreffriction" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="margin" type="xs:double" default="0" />
+    <xs:attribute name="frictionloss" type="xs:double" default="0" />
+    <xs:attribute name="width" type="xs:double" default="0.003" />
+    <xs:attribute name="material" type="xs:string" use="optional" />
+    <xs:attribute name="rgba" type="fourRealsType" default="0.5 0.5 0.5 1" />
+    <xs:attribute name="springlength" type="twoRealsType" />
+    <xs:attribute name="stiffness" type="xs:double" default="0" />
+    <xs:attribute name="damping" type="xs:double" default="0" />
+    <xs:attribute name="armature" type="xs:double" />
+    <xs:attribute name="user" type="infRealsType" />
+  </xs:complexType>
+
+  <xs:complexType name="tendonSiteType">
+    <xs:attribute name="site" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="tendonGeomType">
+    <xs:attribute name="geom" type="xs:string" use="required" />
+    <xs:attribute name="sidesite" type="xs:string" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="tendonPulleyType">
+    <xs:attribute name="divisor" type="xs:double" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="tendonFixedType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="limited" type="xs:boolean" default="false" />
+    <xs:attribute name="range" type="twoRealsType" default="0 0" />
+    <xs:attribute name="solimplimit" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solreflimit" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="solimpfriction" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solreffriction" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="margin" type="xs:double" default="0" />
+    <xs:attribute name="frictionloss" type="xs:double" default="0" />
+    <xs:attribute name="stiffness" type="xs:double" default="0" />
+    <xs:attribute name="damping" type="xs:double" default="0" />
+    <xs:attribute name="armature" type="xs:double" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="springlength" type="twoRealsType" />
+  </xs:complexType>
+
+  <xs:complexType name="tendonJointType">
+    <xs:attribute name="joint" type="xs:string" use="required" />
+    <xs:attribute name="coef" type="xs:double" use="required" />
+  </xs:complexType>
+  <!--#endregion
+    tendon.xsd -->
+
+  <!--#region
+    actuator.xsd -->
+  <xs:complexType name="actuatorGeneralType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="actdim" type="xs:int" />
+    <xs:attribute name="ctrllimited" type="autoBoolType" />
+    <xs:attribute name="forcelimited" type="autoBoolType" />
+    <xs:attribute name="actlimited" type="autoBoolType" />
+    <xs:attribute name="ctrlrange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="forcerange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="actrange" type="twoRealsType" />
+    <xs:attribute name="lengthrange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="gear" type="upToSixRealsType" default="1 0 0 0 0 0" />
+    <xs:attribute name="cranklength" type="xs:double" default="0" />
+    <xs:attribute name="joint" type="xs:string" use="optional" />
+    <xs:attribute name="jointinparent" type="xs:string" use="optional" />
+    <xs:attribute name="site" type="xs:string" use="optional" />
+    <xs:attribute name="refsite" type="xs:string" />
+    <xs:attribute name="tendon" type="xs:string" use="optional" />
+    <xs:attribute name="body" type="xs:string" />
+    <xs:attribute name="cranksite" type="xs:string" use="optional" />
+    <xs:attribute name="slidersite" type="xs:string" use="optional" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="dyntype" type="dyntypeType" default="none" />
+    <xs:attribute name="gaintype" type="gaintypeType" default="fixed" />
+    <xs:attribute name="biastype" type="biastypeType" default="none" />
+    <xs:attribute name="dynprm" type="upToTenRealsType" default="1 0 0 0 0 0 0 0 0 0" />
+    <xs:attribute name="gainprm" type="upToTenRealsType" default="1 0 0 0 0 0 0 0 0 0" />
+    <xs:attribute name="biasprm" type="upToTenRealsType" default="0 0 0 0 0 0 0 0 0 0" />
+    <xs:attribute name="actearly" type="xs:boolean" />
+  </xs:complexType>
+
+  <xs:complexType name="actuatorMotorType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="ctrllimited" type="autoBoolType" />
+    <xs:attribute name="forcelimited" type="autoBoolType" />
+    <xs:attribute name="actlimited" type="autoBoolType" />
+    <xs:attribute name="ctrlrange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="forcerange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="lengthrange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="gear" type="upToSixRealsType" default="1 0 0 0 0 0" />
+    <xs:attribute name="cranklength" type="xs:double" default="0" />
+    <xs:attribute name="joint" type="xs:string" use="optional" />
+    <xs:attribute name="jointinparent" type="xs:string" use="optional" />
+    <xs:attribute name="tendon" type="xs:string" use="optional" />
+    <xs:attribute name="cranksite" type="xs:string" use="optional" />
+    <xs:attribute name="slidersite" type="xs:string" use="optional" />
+    <xs:attribute name="site" type="xs:string" use="optional" />
+    <xs:attribute name="refsite" type="xs:string" />
+    <xs:attribute name="user" type="infRealsType" />
+  </xs:complexType>
+
+  <xs:complexType name="actuatorPositionType">
+    <xs:complexContent>
+      <xs:extension base="actuatorMotorType">
+        <xs:attribute name="kp" type="xs:double" default="1" />
+        <xs:attribute name="kv" type="xs:double" />
+        <xs:attribute name="dampratio" type="xs:double" />
+        <xs:attribute name="timeconst" type="xs:double" />
+        <xs:attribute name="inheritrange" type="xs:double" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="actuatorVelocityType">
+    <xs:complexContent>
+      <xs:extension base="actuatorMotorType">
+        <xs:attribute name="kv" type="xs:double" default="1" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="actuatorIntVelocityType">
+    <xs:complexContent>
+      <xs:extension base="actuatorMotorType">
+        <xs:attribute name="kp" type="xs:double" />
+        <xs:attribute name="kv" type="xs:double" />
+        <xs:attribute name="dampratio" type="xs:double" />
+        <xs:attribute name="actrange" type="twoRealsType" />
+        <xs:attribute name="inheritrange" type="xs:double" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="actuatorDamperType">
+    <xs:complexContent>
+      <xs:extension base="actuatorMotorType">
+        <xs:attribute name="kv" type="xs:double" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="actuatorCylinderType">
+    <xs:complexContent>
+      <xs:extension base="actuatorMotorType">
+        <xs:attribute name="timeconst" type="xs:double" default="1" />
+        <xs:attribute name="area" type="xs:double" default="1" />
+        <xs:attribute name="diameter" type="xs:double" use="optional" />
+        <xs:attribute name="bias" type="threeRealsType" default="0 0 0" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="actuatorMuscleType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="ctrllimited" type="autoBoolType" />
+    <xs:attribute name="forcelimited" type="autoBoolType" />
+    <xs:attribute name="ctrlrange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="forcerange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="lengthrange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="gear" type="upToSixRealsType" default="1 0 0 0 0 0" />
+    <xs:attribute name="cranklength" type="xs:double" default="0" />
+    <xs:attribute name="joint" type="xs:string" use="optional" />
+    <xs:attribute name="jointinparent" type="xs:string" use="optional" />
+    <xs:attribute name="tendon" type="xs:string" use="optional" />
+    <xs:attribute name="cranksite" type="xs:string" use="optional" />
+    <xs:attribute name="slidersite" type="xs:string" use="optional" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="timeconst" type="twoRealsType" default="0.01 0.04" />
+    <xs:attribute name="range" type="twoRealsType" default="0.75 1.05" />
+    <xs:attribute name="force" type="xs:double" default="-1" />
+    <xs:attribute name="scale" type="xs:double" default="200" />
+    <xs:attribute name="lmin" type="xs:double" default="0.5" />
+    <xs:attribute name="lmax" type="xs:double" default="1.6" />
+    <xs:attribute name="vmax" type="xs:double" default="1.5" />
+    <xs:attribute name="fpmax" type="xs:double" default="1.3" />
+    <xs:attribute name="fvmax" type="xs:double" default="1.2" />
+  </xs:complexType>
+
+  <xs:complexType name="actuatorAdhesionType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="forcelimited" type="autoBoolType" />
+    <xs:attribute name="ctrlrange" type="twoRealsType" />
+    <xs:attribute name="forcerange" type="twoRealsType" />
+    <xs:attribute name="body" type="xs:string" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="gain" type="xs:double" />
+  </xs:complexType>
+
+  <xs:complexType name="actuatorPluginextensionType">
+    <xs:attribute name="name" type="xs:string" />
+    <xs:attribute name="class" type="xs:string" />
+    <xs:attribute name="plugin" type="xs:string" />
+    <xs:attribute name="instance" type="xs:string" />
+    <xs:attribute name="group" type="xs:int" />
+    <xs:attribute name="ctrllimited" type="autoBoolType" />
+    <xs:attribute name="forcelimited" type="autoBoolType" />
+    <xs:attribute name="actlimited" type="autoBoolType" />
+    <xs:attribute name="ctrlrange" type="twoRealsType" />
+    <xs:attribute name="forcerange" type="twoRealsType" />
+    <xs:attribute name="actrange" type="twoRealsType" />
+    <xs:attribute name="lengthrange" type="twoRealsType" />
+    <xs:attribute name="actdim" type="xs:int" />
+    <xs:attribute name="dyntype" type="dyntypeType" />
+    <xs:attribute name="dynprm" type="tenRealsType" />
+    <xs:attribute name="gear" type="upToSixRealsType" />
+    <xs:attribute name="cranklength" type="xs:double" />
+    <xs:attribute name="joint" type="xs:string" />
+    <xs:attribute name="jointinparent" type="xs:string" />
+    <xs:attribute name="site" type="xs:string" />
+    <xs:attribute name="tendon" type="xs:string" />
+    <xs:attribute name="cranksite" type="xs:string" />
+    <xs:attribute name="slidersite" type="xs:string" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="actearly" type="xs:boolean" />
+  </xs:complexType>
+
+  <!--#endregion
+    equality.xsd -->
+
+  <!--#region
+    sensor.xsd -->
+  <xs:complexType name="sensorType">
+    <!-- Covers touch, accelerometer, velocimeter, gyro, force,
+        torque, magnetometer, rangefinder -->
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="noise" type="xs:double" default="0" />
+    <xs:attribute name="cutoff" type="xs:double" default="0" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="site" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="sensorCamprojectionType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="noise" type="xs:double" default="0" />
+    <xs:attribute name="cutoff" type="xs:double" default="0" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="site" type="xs:string" use="required" />
+    <xs:attribute name="camera" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="sensorJointType">
+    <!-- Covers jointpos, jointvel
+        ballquat, ballangvel,jointlimitpos, jointlimitvel,
+        jointlimitfrc -->
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="noise" type="xs:double" default="0" />
+    <xs:attribute name="cutoff" type="xs:double" default="0" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="joint" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="sensorJointactuatorfrcType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="noise" type="xs:double" default="0" />
+    <xs:attribute name="cutoff" type="xs:double" default="0" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="joint" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="sensorTendonType">
+    <!-- Covers tendonpos, tendonvel, tendonlimitpos, tendonlimitvel
+        tendonlimitfrc-->
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="noise" type="xs:double" default="0" />
+    <xs:attribute name="cutoff" type="xs:double" default="0" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="tendon" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="sensorActuatorType">
+    <!-- Covers actuatorpos, actuatorvel, actuatorfrc -->
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="noise" type="xs:double" default="0" />
+    <xs:attribute name="cutoff" type="xs:double" default="0" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="actuator" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="sensorFrameType">
+    <!-- Covers framepos, framequat, framexaxis, frameyaxis,
+        framezaxis, framelinvel, frameangvel, framelinacc,
+        frameangacc -->
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="noise" type="xs:double" default="0" />
+    <xs:attribute name="cutoff" type="xs:double" default="0" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="objtype" type="objtypeType" use="required" />
+    <xs:attribute name="objname" type="xs:string" use="required" />
+    <xs:attribute name="reftype" type="objtypeType" />
+    <xs:attribute name="refname" type="xs:string" />
+  </xs:complexType>
+
+  <xs:complexType name="sensorFrameaccType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="noise" type="xs:double" default="0" />
+    <xs:attribute name="cutoff" type="xs:double" default="0" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="objtype" type="objtypeType" use="required" />
+    <xs:attribute name="objname" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="sensorSubtreeType">
+    <!-- Covers subtreecom, subtreelinvel, subtreeangmom -->
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="noise" type="xs:double" default="0" />
+    <xs:attribute name="cutoff" type="xs:double" default="0" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="body" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="sensorInsidesiteType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="noise" type="xs:double" default="0" />
+    <xs:attribute name="cutoff" type="xs:double" default="0" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="site" type="xs:string" use="required" />
+    <xs:attribute name="objtype" type="objtypeType" use="required" />
+    <xs:attribute name="objname" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="sensorUserType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="noise" type="xs:double" default="0" />
+    <xs:attribute name="cutoff" type="xs:double" default="0" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="objtype" type="customobjtypeType" />
+    <xs:attribute name="objname" type="xs:string" />
+    <xs:attribute name="datatype" type="datatypeType" use="required" />
+    <xs:attribute name="needstage" type="needstageType" use="required" />
+    <xs:attribute name="dim" type="xs:int" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="sensorPluginType">
+    <xs:attribute name="name" type="xs:string" />
+    <xs:attribute name="plugin" type="xs:string" />
+    <xs:attribute name="instance" type="xs:string" />
+    <xs:attribute name="cutoff" type="xs:double" />
+    <xs:attribute name="objtype" type="customobjtypeType" />
+    <xs:attribute name="objname" type="xs:string" />
+    <xs:attribute name="user" type="infRealsType" />
+  </xs:complexType>
+
+  <xs:complexType name="sensorFromtoType">
+    <xs:attribute name="name" type="xs:string" />
+    <xs:attribute name="noise" type="xs:double" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="cutoff" type="xs:double" use="required" />
+    <xs:attribute name="geom1" type="xs:string" />
+    <xs:attribute name="geom2" type="xs:string" />
+    <xs:attribute name="body1" type="xs:string" />
+    <xs:attribute name="body2" type="xs:string" />
+  </xs:complexType>
+
+  <xs:complexType name="sensorSimpleSensorType">
+    <xs:attribute name="name" type="xs:string" />
+    <xs:attribute name="noise" type="xs:double" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="cutoff" type="xs:double" />
+  </xs:complexType>
+  <!--#endregion
+    equality.xsd -->
+
+  <!--#region
+    keyframe.xsd -->
+  <xs:complexType name="keyType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="time" type="xs:double" default="0" />
+    <xs:attribute name="qpos" type="infRealsType" />
+    <xs:attribute name="qvel" type="infRealsType" />
+    <xs:attribute name="act" type="infRealsType" />
+    <xs:attribute name="ctrl" type="infRealsType" />
+    <xs:attribute name="mpos" type="infRealsType" />
+    <xs:attribute name="mquat" type="infRealsType" />
+  </xs:complexType>
+  <!--#endregion 
+    keyframe.xsd -->
+
+  <!--#region
+    extension.xsd -->
+  <xs:complexType name="extensionPluginType">
+    <xs:attribute name="plugin" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="extensionInstanceType">
+    <xs:attribute name="name" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="extensionConfigType">
+    <xs:attribute name="key" type="xs:string" />
+    <xs:attribute name="value" type="xs:string" />
+  </xs:complexType>
+  <!--#endregion
+    extension.xsd -->
+
+  <!--#region
+    deformable.xsd -->
+  <xs:complexType name="deformableFlexType">
+    <xs:attribute name="name" type="xs:string" />
+    <xs:attribute name="group" type="xs:string" />
+    <xs:attribute name="dim" type="xs:int" use="required" />
+    <xs:attribute name="radius" type="xs:double" use="required" />
+    <xs:attribute name="material" type="xs:string" />
+    <xs:attribute name="rgba" type="fourRealsType" />
+    <xs:attribute name="flatskin" type="twoRealsType" />
+    <xs:attribute name="body" type="xs:string" />
+    <xs:attribute name="vertex" type="fiveRealsType" />
+    <xs:attribute name="element" type="infIntsType" />
+    <xs:attribute name="texcoord" type="infRealsType" />
+    <xs:attribute name="elemtexcoord" type="infRealsType" />
+    <xs:attribute name="node" type="threeRealsType" />
+  </xs:complexType>
+
+  <xs:complexType name="deformableFlexedgeType">
+    <xs:attribute name="stiffness" type="xs:double" />
+    <xs:attribute name="damping" type="xs:double" />
+  </xs:complexType>
+
+  <xs:complexType name="deformableFlexcontactType">
+    <xs:attribute name="contype" type="xs:int" />
+    <xs:attribute name="conaffinity" type="xs:int" />
+    <xs:attribute name="condim" type="xs:int" />
+    <xs:attribute name="priority" type="xs:int" />
+    <xs:attribute name="friction" type="upToThreeRealsType" />
+    <xs:attribute name="solmix" type="xs:double" />
+    <xs:attribute name="solref" type="twoRealsType" />
+    <xs:attribute name="solimp" type="fiveRealsType" />
+    <xs:attribute name="margin" type="xs:double" />
+    <xs:attribute name="gap" type="xs:double" />
+    <xs:attribute name="internal" type="xs:int" />
+    <xs:attribute name="selfcollide" type="selfcollideType" />
+    <xs:attribute name="vertcollide" type="xs:boolean" />
+    <xs:attribute name="activelayers" type="xs:int" />
+    <xs:attribute name="passive" type="xs:boolean" />
+  </xs:complexType>
+
+  <xs:complexType name="deformableElasticityType">
+    <xs:attribute name="young" type="xs:double" />
+    <xs:attribute name="poisson" type="xs:double" />
+    <xs:attribute name="thickness" type="xs:double" />
+    <xs:attribute name="damping" type="xs:double" />
+    <xs:attribute name="elastic2d" type="elastic2dType" />
+  </xs:complexType>
+
+  <xs:complexType name="deformableSkinType">
+    <xs:attribute name="name" type="xs:string" />
+    <xs:attribute name="file" type="xs:string" />
+    <xs:attribute name="vertex" type="infRealsType" />
+    <xs:attribute name="texcoord" type="infRealsType" />
+    <xs:attribute name="face" type="infIntsType" />
+    <xs:attribute name="inflate" type="xs:double" />
+    <xs:attribute name="material" type="xs:string" />
+    <xs:attribute name="rgba" type="fourRealsType" />
+    <xs:attribute name="group" type="xs:int" />
+  </xs:complexType>
+
+  <xs:complexType name="deformableBoneType">
+    <xs:attribute name="body" type="xs:string" use="required" />
+    <xs:attribute name="bindpos" type="threeRealsType" use="required" />
+    <xs:attribute name="bindquat" type="fourRealsType" use="required" />
+    <xs:attribute name="vertid" type="infIntsType" use="required" />
+    <xs:attribute name="vertweight" type="infRealsType" use="required" />
+  </xs:complexType>
+  <!--#endregion
+    deformable.xsd -->
+
+
+  <!-- Recursive types -->
+
+  <!-- default -->
+  <xs:complexType name="defaultMainType">
+    <xs:complexContent>
+      <xs:extension base="defaultType">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element name="mesh" type="defaultMeshType" />
+          <xs:element name="material" type="defaultMaterialType" />
+          <xs:element name="joint" type="defaultJointType" />
+          <xs:element name="geom" type="defaultGeomType" />
+          <xs:element name="site" type="defaultSiteType" />
+          <xs:element name="camera" type="defaultCameraType" />
+          <xs:element name="light" type="defaultLightType" />
+          <xs:element name="pair" type="defaultPairType" />
+          <xs:element name="equality" type="defaultVisualQualityType" />
+          <xs:element name="tendon" type="defaultTendonType" />
+          <xs:element name="general" type="defaultGeneralType" />
+          <xs:element name="motor" type="defaultMotorType" />
+          <xs:element name="position" type="defaultPositionType" />
+          <xs:element name="velocity" type="defaultVelocityType" />
+          <xs:element name="cylinder" type="defaultCylinderType" />
+          <xs:element name="muscle" type="defaultMuscleType" />
+          <xs:element name="adhesion" type="defaultAdhesionType" />
+
+          <xs:element name="default" type="defaultMainType" minOccurs="0" />
+          <xs:element name="include" type="rootIncludeType" />
+        </xs:choice>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- body -->
+  <xs:complexType name="bodyarchType">
+    <xs:complexContent>
+      <xs:extension base="bodyType">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element name="inertial" type="bodyInertialType" />
+          <xs:element name="joint" type="bodyJointType" />
+          <xs:element name="freejoint" type="bodyFreeJointType" />
+          <xs:element name="geom">
+            <xs:complexType>
+              <xs:complexContent>
+                <xs:extension base="bodyGeomType">
+                  <xs:sequence>
+                    <xs:element name="plugin" type="sensorPluginType"
+                      minOccurs="0"
+                      maxOccurs="unbounded" />
+                  </xs:sequence>
+                </xs:extension>
+              </xs:complexContent>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="site" type="bodySiteType" />
+          <xs:element name="camera" type="bodyCameraType" />
+          <xs:element name="light" type="bodyLightType" />
+          <xs:element name="flexcomp">
+            <xs:complexType>
+              <xs:complexContent>
+                <xs:extension base="bodyFlexcompType">
+                  <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element name="plugin" type="sensorPluginType" />
+                    <xs:element name="edge" type="bodyFlexcompedgeType" />
+                    <xs:element name="elasticity"
+                      type="bodyFlexcompdeformableElasticityType" />
+                    <xs:element name="contact" type="bodyFlexcompcontactType" />
+                    <xs:element name="pin" type="bodyFlexcompbodyPinType" />
+                  </xs:choice>
+                </xs:extension>
+              </xs:complexContent>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="composite">
+            <xs:complexType>
+              <xs:complexContent>
+                <xs:extension base="bodyCompositeType">
+                  <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element name="plugin" type="sensorPluginType" />
+                    <xs:element name="joint"
+                      type="bodyCompositeequalityJointType" />
+                    <xs:element name="geom" type="bodyCompositegeomType" />
+                    <xs:element name="site" type="bodyCompositesiteType" />
+                    <xs:element name="skin" type="bodyAssetSkinType" />
+                    <xs:element name="pin" type="bodyPinType" />
+                    <xs:element name="include" type="rootIncludeType" />
+                  </xs:choice>
+                </xs:extension>
+              </xs:complexContent>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="frame" type="bodyarchType" />
+          <xs:element name="body" type="bodyarchType" />
+          <xs:element name="plugin" type="sensorPluginType" minOccurs="0"
+            maxOccurs="unbounded" />
+          <xs:element name="include" type="rootIncludeType" />
+        </xs:choice>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+
+  <xs:complexType name="pluginType">
+    <xs:complexContent>
+      <xs:extension base="extensionPluginType">
+        <xs:sequence>
+          <xs:element name="instance" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:complexContent>
+                <xs:extension base="extensionInstanceType">
+                  <xs:sequence>
+                    <xs:element name="config" type="extensionConfigType"
+                      minOccurs="0" maxOccurs="unbounded" />
+                  </xs:sequence>
+                </xs:extension>
+              </xs:complexContent>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Beginning of the architecture of elements -->
+  <xs:element name="mujoco">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="rootMujocoType">
+          <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <!-- compiler element -->
+            <xs:element name="compiler" maxOccurs="1">
+              <xs:complexType>
+                <xs:complexContent>
+                  <xs:extension base="compilerType">
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                      <xs:element name="lengthrange"
+                        type="compilerLengthRangeType" maxOccurs="1" />
+                      <xs:element name="include" type="rootIncludeType" />
+                    </xs:choice>
+                  </xs:extension>
+                </xs:complexContent>
+              </xs:complexType>
+            </xs:element>
+
+            <!-- option element -->
+            <xs:element name="option" maxOccurs="1">
+              <xs:complexType>
+                <xs:complexContent>
+                  <xs:extension base="optionType">
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                      <xs:element name="flag" type="optionFlagType"
+                        maxOccurs="1" />
+                      <xs:element name="include" type="rootIncludeType" />
+                    </xs:choice>
+                  </xs:extension>
+                </xs:complexContent>
+              </xs:complexType>
+            </xs:element>
+
+            <!-- size element -->
+            <xs:element name="size" type="sizeType" maxOccurs="1" />
+
+            <!-- visual element -->
+            <xs:element name="visual" maxOccurs="1">
+              <xs:complexType>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                  <xs:element name="global" type="visualGlobalType" maxOccurs="1" />
+                  <xs:element name="quality" type="visualQualityType"
+                    maxOccurs="1" />
+                  <xs:element name="headlight" type="visualHeadlightType"
+                    maxOccurs="1" />
+                  <xs:element name="map" type="visualMapType" maxOccurs="1" />
+                  <xs:element name="scale" type="visualScaleType" maxOccurs="1" />
+                  <xs:element name="rgba" type="visualRGBAType" maxOccurs="1" />
+                  <xs:element name="include" type="rootIncludeType" />
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+
+            <!-- statistic element -->
+            <xs:element name="statistic" type="statisticType" maxOccurs="1" />
+
+            <!-- default element -->
+            <xs:element name="default" maxOccurs="1">
+              <xs:complexType>
+                <xs:complexContent>
+                  <xs:extension base="defaultmainType">
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                      <xs:element name="mesh" type="defaultMeshType" />
+                      <xs:element name="material" type="defaultMaterialType" />
+                      <xs:element name="joint" type="defaultJointType" />
+                      <xs:element name="geom" type="defaultGeomType" />
+                      <xs:element name="site" type="defaultSiteType" />
+                      <xs:element name="camera" type="defaultCameraType" />
+                      <xs:element name="light" type="defaultLightType" />
+                      <xs:element name="pair" type="defaultPairType" />
+                      <xs:element name="equality"
+                        type="defaultVisualQualityType" />
+                      <xs:element name="tendon" type="defaultTendonType" />
+                      <xs:element name="general" type="defaultGeneralType" />
+                      <xs:element name="motor" type="defaultMotorType" />
+                      <xs:element name="position" type="defaultPositionType" />
+                      <xs:element name="velocity" type="defaultVelocityType" />
+                      <xs:element name="cylinder" type="defaultCylinderType" />
+                      <xs:element name="muscle" type="defaultMuscleType" />
+                      <xs:element name="adhesion" type="defaultAdhesionType" />
+                      <xs:element name="default" type="defaultMainType"
+                        minOccurs="0" />
+                      <xs:element name="include" type="rootIncludeType" />
+                    </xs:choice>
+                  </xs:extension>
+                </xs:complexContent>
+              </xs:complexType>
+            </xs:element>
+
+            <!-- custom element -->
+            <xs:element name="custom" maxOccurs="1">
+              <xs:complexType>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                  <xs:element name="numeric" type="customNumericType" />
+                  <xs:element name="text" type="customTextType" />
+                  <xs:element name="tuple">
+                    <xs:complexType>
+                      <xs:complexContent>
+                        <xs:extension base="customTupleType">
+                          <xs:choice minOccurs="0" maxOccurs="unbounded">
+                            <xs:element name="element"
+                              type="customElementType" />
+                            <xs:element name="include"
+                              type="rootIncludeType" />
+                          </xs:choice>
+                        </xs:extension>
+                      </xs:complexContent>
+                    </xs:complexType>
+                  </xs:element>
+                  <xs:element name="include" type="rootIncludeType" />
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+
+            <xs:element name="extension">
+              <xs:complexType>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                  <xs:element name="plugin">
+                    <xs:complexType>
+                      <xs:complexContent>
+                        <xs:extension base="extensionPluginType">
+                          <xs:choice minOccurs="0" maxOccurs="unbounded">
+                            <xs:element name="instance">
+                              <xs:complexType>
+                                <xs:complexContent>
+                                  <xs:extension
+                                    base="extensionInstanceType">
+                                    <xs:choice minOccurs="0"
+                                      maxOccurs="unbounded">
+                                      <xs:element
+                                        name="config"
+                                        type="extensionConfigType" />
+                                    </xs:choice>
+                                  </xs:extension>
+                                </xs:complexContent>
+                              </xs:complexType>
+                            </xs:element>
+                          </xs:choice>
+                        </xs:extension>
+                      </xs:complexContent>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+
+            <!-- asset element -->
+            <xs:element name="asset">
+              <xs:complexType>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                  <xs:element name="texture" type="assetTextureType" />
+                  <xs:element name="hfield" type="assetHfieldType" />
+                  <xs:element name="mesh">
+                    <xs:complexType>
+                      <xs:complexContent>
+                        <xs:extension base="assetMeshType">
+                          <xs:sequence>
+                            <xs:element name="plugin"
+                              type="sensorPluginType"
+                              minOccurs="0" maxOccurs="unbounded" />
+                          </xs:sequence>
+                        </xs:extension>
+                      </xs:complexContent>
+                    </xs:complexType>
+                  </xs:element>
+                  <xs:element name="skin">
+                    <xs:complexType>
+                      <xs:complexContent>
+                        <xs:extension base="assetSkinType">
+                          <xs:choice minOccurs="0" maxOccurs="unbounded">
+                            <xs:element name="bone" type="assetBoneType" />
+                            <xs:element name="include"
+                              type="rootIncludeType" />
+                          </xs:choice>
+                        </xs:extension>
+                      </xs:complexContent>
+                    </xs:complexType>
+                  </xs:element>
+                  <xs:element name="material">
+                    <xs:complexType>
+                      <xs:complexContent>
+                        <xs:extension base="assetMaterialType">
+                          <xs:choice minOccurs="0" maxOccurs="unbounded">
+                            <xs:element name="layer"
+                              type="assetLayerType" />
+                          </xs:choice>
+                        </xs:extension>
+                      </xs:complexContent>
+                    </xs:complexType>
+                  </xs:element>
+                  <xs:element name="include" type="rootIncludeType" />
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+
+            <!-- (world)body element -->
+            <xs:element name="worldbody">
+              <xs:complexType>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                  <xs:element name="geom" type="bodyGeomType" />
+                  <xs:element name="site" type="bodySiteType" />
+                  <xs:element name="camera" type="bodyCameraType" />
+                  <xs:element name="light" type="bodyLightType" />
+                  <xs:element name="flexcomp">
+                    <xs:complexType>
+                      <xs:complexContent>
+                        <xs:extension base="bodyFlexcompType">
+                          <xs:choice minOccurs="0" maxOccurs="unbounded">
+                            <xs:element name="plugin"
+                              type="sensorPluginType" />
+                            <xs:element name="edge"
+                              type="bodyFlexcompedgeType" />
+                            <xs:element name="elasticity"
+                              type="bodyFlexcompdeformableElasticityType" />
+                            <xs:element name="contact"
+                              type="bodyFlexcompcontactType" />
+                            <xs:element name="pin"
+                              type="bodyFlexcompbodyPinType" />
+                          </xs:choice>
+                        </xs:extension>
+                      </xs:complexContent>
+                    </xs:complexType>
+                  </xs:element>
+                  <xs:element name="composite">
+                    <xs:complexType>
+                      <xs:complexContent>
+                        <xs:extension base="bodyCompositeType">
+                          <xs:choice minOccurs="0" maxOccurs="unbounded">
+                            <xs:element name="plugin"
+                              type="sensorPluginType" />
+                            <xs:element name="joint"
+                              type="bodyCompositeequalityJointType" />
+                            <xs:element name="geom"
+                              type="bodyCompositegeomType" />
+                            <xs:element name="site"
+                              type="bodyCompositesiteType" />
+                            <xs:element name="skin"
+                              type="bodyAssetSkinType" />
+                            <xs:element name="pin" type="bodyPinType" />
+                            <xs:element name="include"
+                              type="rootIncludeType" />
+                          </xs:choice>
+                        </xs:extension>
+                      </xs:complexContent>
+                    </xs:complexType>
+                  </xs:element>
+
+                  <xs:element name="body" type="bodyarchType" />
+                  <xs:element name="plugin" type="sensorPluginType" minOccurs="0"
+                    maxOccurs="unbounded" />
+                  <xs:element name="include" type="rootIncludeType" />
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+
+            <xs:element name="deformable">
+              <xs:complexType>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                  <xs:element name="flex">
+                    <xs:complexType>
+                      <xs:complexContent>
+                        <xs:extension base="deformableFlexType">
+                          <xs:choice minOccurs="0" maxOccurs="unbounded">
+                            <xs:element name="edge"
+                              type="deformableFlexedgeType" />
+                            <xs:element name="contact"
+                              type="deformableFlexcontactType" />
+                            <xs:element name="elasticity"
+                              type="deformableElasticityType" />
+                          </xs:choice>
+                        </xs:extension>
+                      </xs:complexContent>
+                    </xs:complexType>
+                  </xs:element>
+                  <xs:element name="skin">
+                    <xs:complexType>
+                      <xs:complexContent>
+                        <xs:extension base="deformableSkinType">
+                          <xs:choice minOccurs="0" maxOccurs="unbounded">
+                            <xs:element name="bone"
+                              type="deformableBoneType" />
+                          </xs:choice>
+                        </xs:extension>
+                      </xs:complexContent>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+
+            <!-- contact element -->
+            <xs:element name="contact">
+              <xs:complexType>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                  <xs:element name="pair" type="contactPairType" />
+                  <xs:element name="exclude" type="contactExcludeType" />
+                  <!-- Removed attach element as it was not in the custom XML -->
+                  <xs:element name="include" type="rootIncludeType" />
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+
+            <!-- equality element -->
+            <xs:element name="equality">
+              <xs:complexType>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                  <xs:element name="connect" type="equalityConnectType" />
+                  <xs:element name="weld" type="equalityWeldType" />
+                  <xs:element name="joint" type="equalityJointType" />
+                  <xs:element name="tendon" type="equalityTendonType" />
+                  <xs:element name="flex" type="equalityFlexType" />
+                  <xs:element name="include" type="rootIncludeType" />
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+
+            <!-- tendon element -->
+            <xs:element name="tendon">
+              <xs:complexType>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                  <xs:element name="spatial">
+                    <xs:complexType>
+                      <xs:complexContent>
+                        <xs:extension base="tendonSpatialType">
+                          <xs:choice minOccurs="0" maxOccurs="unbounded">
+                            <xs:element name="site"
+                              type="tendonSiteType" />
+                            <xs:element name="geom"
+                              type="tendonGeomType" />
+                            <xs:element name="pulley"
+                              type="tendonPulleyType" />
+                            <xs:element name="include"
+                              type="rootIncludeType" />
+                          </xs:choice>
+                        </xs:extension>
+                      </xs:complexContent>
+                    </xs:complexType>
+                  </xs:element>
+                  <xs:element name="fixed">
+                    <xs:complexType>
+                      <xs:complexContent>
+                        <xs:extension base="tendonFixedType">
+                          <xs:choice minOccurs="0" maxOccurs="unbounded">
+                            <xs:element name="joint"
+                              type="tendonJointType" />
+                            <xs:element name="include"
+                              type="rootIncludeType" />
+                          </xs:choice>
+                        </xs:extension>
+                      </xs:complexContent>
+                    </xs:complexType>
+                  </xs:element>
+                  <xs:element name="include" type="rootIncludeType" />
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+
+            <!-- actuator element -->
+            <xs:element name="actuator">
+              <xs:complexType>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                  <xs:element name="general" type="actuatorGeneralType" />
+                  <xs:element name="motor" type="actuatorMotorType" />
+                  <xs:element name="position" type="actuatorPositionType" />
+                  <xs:element name="velocity" type="actuatorVelocityType" />
+                  <xs:element name="intvelocity" type="actuatorIntVelocityType" />
+                  <xs:element name="damper" type="actuatorDamperType" />
+                  <xs:element name="cylinder" type="actuatorCylinderType" />
+                  <xs:element name="muscle" type="actuatorMuscleType" />
+                  <xs:element name="adhesion" type="actuatorAdhesionType" />
+                  <xs:element name="plugin" xmlns:ext="extension">
+                    <xs:complexType>
+                      <xs:complexContent>
+                        <xs:extension base="actuatorPluginextensionType">
+                          <xs:choice minOccurs="0" maxOccurs="unbounded">
+                            <xs:element name="config"
+                              type="extensionConfigType" />
+                          </xs:choice>
+                        </xs:extension>
+                      </xs:complexContent>
+                    </xs:complexType>
+                  </xs:element>
+                  <xs:element name="include" type="rootIncludeType" />
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+
+            <!-- sensor element -->
+            <xs:element name="sensor">
+              <xs:complexType>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                  <xs:element name="touch" type="sensorType" />
+                  <xs:element name="accelerometer" type="sensorType" />
+                  <xs:element name="velocimeter" type="sensorType" />
+                  <xs:element name="gyro" type="sensorType" />
+                  <xs:element name="force" type="sensorType" />
+                  <xs:element name="torque" type="sensorType" />
+                  <xs:element name="magnetometer" type="sensorType" />
+                  <xs:element name="rangefinder" type="sensorType" />
+                  <xs:element name="camprojection" type="sensorCamprojectionType" />
+                  <xs:element name="jointpos" type="sensorJointType" />
+                  <xs:element name="jointvel" type="sensorJointType" />
+                  <xs:element name="tendonpos" type="sensorTendonType" />
+                  <xs:element name="tendonvel" type="sensorTendonType" />
+                  <xs:element name="actuatorpos" type="sensorActuatorType" />
+                  <xs:element name="actuatorvel" type="sensorActuatorType" />
+                  <xs:element name="actuatorfrc" type="sensorActuatorType" />
+                  <xs:element name="ballquat" type="sensorJointType" />
+                  <xs:element name="ballangvel" type="sensorJointType" />
+                  <xs:element name="jointlimitpos" type="sensorJointType" />
+                  <xs:element name="jointlimitvel" type="sensorJointType" />
+                  <xs:element name="jointlimitfrc" type="sensorJointType" />
+                  <xs:element name="jointactuatorfrc"
+                    type="sensorJointactuatorfrcType" />
+                  <xs:element name="tendonlimitpos" type="sensorTendonType" />
+                  <xs:element name="tendonlimitvel" type="sensorTendonType" />
+                  <xs:element name="tendonlimitfrc" type="sensorTendonType" />
+                  <xs:element name="framepos" type="sensorFrameType" />
+                  <xs:element name="framequat" type="sensorFrameType" />
+                  <xs:element name="framexaxis" type="sensorFrameType" />
+                  <xs:element name="frameyaxis" type="sensorFrameType" />
+                  <xs:element name="framezaxis" type="sensorFrameType" />
+                  <xs:element name="framelinvel" type="sensorFrameType" />
+                  <xs:element name="frameangvel" type="sensorFrameType" />
+                  <xs:element name="framelinacc" type="sensorFrameaccType" />
+                  <xs:element name="frameangacc" type="sensorFrameaccType" />
+                  <xs:element name="subtreecom" type="sensorSubtreeType" />
+                  <xs:element name="subtreelinvel" type="sensorSubtreeType" />
+                  <xs:element name="subtreeangmom" type="sensorSubtreeType" />
+                  <xs:element name="insidesite" type="sensorInsidesiteType" />
+                  <xs:element name="user" type="sensorUserType" />
+                  <xs:element name="plugin" xmlns:ext="extension">
+                    <xs:complexType>
+                      <xs:complexContent>
+                        <xs:extension base="sensorPluginType">
+                          <xs:choice minOccurs="0" maxOccurs="unbounded">
+                            <xs:element name="config"
+                              type="extensionConfigType" />
+                          </xs:choice>
+                        </xs:extension>
+                      </xs:complexContent>
+                    </xs:complexType>
+                  </xs:element>
+                  <xs:element name="fromto" type="sensorFromtoType" />
+                  <xs:element name="normal" type="sensorFromtoType" />
+                  <xs:element name="distance" type="sensorFromtoType" />
+                  <xs:element name="e_potential" type="sensorSimpleSensorType" />
+                  <xs:element name="e_kinetic" type="sensorSimpleSensorType" />
+                  <xs:element name="clock" type="sensorSimpleSensorType" />
+                  <xs:element name="include" type="rootIncludeType" />
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+
+            <!-- keyframe element -->
+            <xs:element name="keyframe">
+              <xs:complexType>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                  <xs:element name="key" type="keyType" />
+                  <xs:element name="include" type="rootIncludeType" />
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+
+            <!-- include element -->
+            <xs:element name="include" type="rootIncludeType" />
+
+          </xs:choice>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

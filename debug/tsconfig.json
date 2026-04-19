@@ -1,0 +1,18 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "outDir": "./dist",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "types": ["vite/client"],
+    "allowJs": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "paths": {
+      "$lib": ["../packages/viewer-ui/src/lib"],
+      "$lib/*": ["../packages/viewer-ui/src/lib/*"]
+    }
+  },
+  "include": ["src/**/*"]
+}

@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker"],
+    "outDir": "./dist/webview",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo-webview",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "include": ["src/webview/**/*"]
+}

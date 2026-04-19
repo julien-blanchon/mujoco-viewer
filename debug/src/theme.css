@@ -1,0 +1,34 @@
+/* Pull in the shared viewer-ui theme (Tailwind + shadcn tokens + fonts). */
+@import "@mujoco-viewer/viewer-ui/app.css";
+
+@source "../";
+@source "../../packages/viewer-ui/src";
+
+:root {
+  --vscode-font-family: "Inter Variable", system-ui, -apple-system, sans-serif;
+  --vscode-foreground: #cccccc;
+  --vscode-editor-background: #1e1e1e;
+  --vscode-editor-foreground: #cccccc;
+  --vscode-editor-inactiveSelectionBackground: #264f78;
+  --vscode-descriptionForeground: #888888;
+  --vscode-panel-border: #333333;
+  --vscode-editorGroupHeader-tabsBackground: #252526;
+  --vscode-statusBar-background: #007acc;
+  --vscode-statusBar-foreground: #ffffff;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  background: var(--vscode-editor-background);
+  color: var(--vscode-foreground);
+  font-family: var(--vscode-font-family);
+  overflow: hidden;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+}

@@ -1,0 +1,65 @@
+{
+  "name": "mujoco-svelte",
+  "version": "0.1.0",
+  "description": "Composable Threlte / Svelte 5 building blocks for MuJoCo WASM simulations",
+  "author": "Julien Blanchon <julien@blanchon.cc>",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./src/lib/index.ts",
+  "module": "./src/lib/index.ts",
+  "types": "./src/lib/index.ts",
+  "svelte": "./src/lib/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/lib/index.ts",
+      "svelte": "./src/lib/index.ts",
+      "default": "./src/lib/index.ts"
+    },
+    "./worker": {
+      "types": "./src/lib/core/engine/mujocoWorker.ts",
+      "default": "./src/lib/core/engine/mujocoWorker.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "sideEffects": false,
+  "keywords": [
+    "mujoco",
+    "svelte",
+    "threlte",
+    "three",
+    "physics",
+    "simulation",
+    "robotics",
+    "wasm"
+  ],
+  "scripts": {
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
+  },
+  "peerDependencies": {
+    "@threlte/core": ">=8",
+    "@threlte/extras": ">=9",
+    "svelte": ">=5",
+    "three": ">=0.160.0"
+  },
+  "dependencies": {
+    "@lezer/common": "^1.5.2",
+    "@lezer/xml": "^1.0.6",
+    "diff": "^9.0.0",
+    "mujoco-js": "0.0.7"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-auto": "^6.0.0",
+    "@sveltejs/kit": "^2.15.0",
+    "@sveltejs/vite-plugin-svelte": "^6.0.0",
+    "@threlte/core": "^8.5.0",
+    "@threlte/extras": "^9.3.0",
+    "@types/diff": "^8.0.0",
+    "@types/three": "^0.181.0",
+    "svelte": "^5.50.0",
+    "svelte-check": "^4.1.1",
+    "three": "^0.181.0",
+    "typescript": "^5.6.3"
+  }
+}

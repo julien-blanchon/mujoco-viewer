@@ -1,0 +1,31 @@
+# Source
+src/**
+test/**
+scripts/**
+
+# Build tooling
+tsconfig*.json
+vite.config.ts
+svelte.config.js
+esbuild.config.mjs
+
+# Build artifacts we don't ship
+dist/.tsbuildinfo*
+dist/host/**/*.map
+dist/webview/**/*.map
+
+# Source SVG for the marketplace icon (shipped as PNG)
+resources/icon.svg
+
+# Package manager / VCS
+node_modules/**
+.vscode/**
+.gitignore
+.gitattributes
+bun.lock
+package-lock.json
+yarn.lock
+
+# Misc
+*.vsix
+.DS_Store

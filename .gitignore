@@ -1,0 +1,35 @@
+# Dependency directories
+node_modules/
+
+# IDE related
+.idea
+
+# Test coverage
+coverage
+*.lcov
+
+# Optional eslint cache
+.eslintcache
+
+# dotenv environment variables file
+.env
+.env.test
+
+# build output
+build/
+dist/
+*.tsbuildinfo
+.svelte-kit/
+.vercel
+*.vsix
+
+# OS-specific
+.DS_Store
+
+tmp
+
+context/
+
+# Heavy demo fixtures — fetched on demand, see debug/README.md.
+debug/fixtures/procthor-10k-train/
+debug/fixtures/g1/

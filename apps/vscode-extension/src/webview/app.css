@@ -1,0 +1,150 @@
+/* Pull in the shared viewer-ui theme (Tailwind + shadcn tokens + fonts). */
+@import "@mujoco-viewer/viewer-ui/app.css";
+
+@source "../";
+@source "../../../../packages/viewer-ui/src";
+
+/* --------------------------------------------------------------------------
+   VSCode theme bridge
+
+   VSCode injects its theme colors as `--vscode-*` CSS variables on :root.
+   We remap the shadcn tokens to those vars so the viewer follows the user's
+   editor theme (including custom Cursor themes). The `var(x, fallback)` form
+   keeps this safe in environments where the vars aren't defined (e.g. the
+   standalone debug app, which imports viewer-ui/app.css directly and never
+   sees these overrides).
+
+   Variable names come from Microsoft's registry:
+   https://github.com/microsoft/vscode/blob/main/build/lib/stylelint/vscode-known-variables.json
+   -------------------------------------------------------------------------- */
+
+:root,
+.dark,
+body.vscode-dark,
+body.vscode-light,
+body.vscode-high-contrast,
+body.vscode-high-contrast-light {
+	/* Surfaces */
+	--background: var(--vscode-editor-background, #1e1e1e);
+	--foreground: var(--vscode-editor-foreground, #d4d4d4);
+	--card: var(--vscode-editorWidget-background, var(--vscode-editor-background, #252526));
+	--card-foreground: var(
+		--vscode-editorWidget-foreground,
+		var(--vscode-editor-foreground, #d4d4d4)
+	);
+	--popover: var(
+		--vscode-editorWidget-background,
+		var(--vscode-menu-background, var(--vscode-editor-background, #252526))
+	);
+	--popover-foreground: var(
+		--vscode-editorWidget-foreground,
+		var(--vscode-menu-foreground, var(--vscode-editor-foreground, #d4d4d4))
+	);
+
+	/* Primary action */
+	--primary: var(--vscode-button-background, #0e639c);
+	--primary-foreground: var(--vscode-button-foreground, #ffffff);
+
+	/* Secondary action — some themes (github dark, vanilla dark+) don't set
+	   button.secondaryBackground, so fall all the way through to a visible
+	   neutral gray. */
+	--secondary: var(
+		--vscode-button-secondaryBackground,
+		var(--vscode-toolbar-hoverBackground, rgba(128, 128, 128, 0.18))
+	);
+	--secondary-foreground: var(
+		--vscode-button-secondaryForeground,
+		var(--vscode-foreground, var(--vscode-editor-foreground, #d4d4d4))
+	);
+
+	/* Muted / subtle surfaces and text */
+	--muted: var(
+		--vscode-editorWidget-background,
+		var(--vscode-editor-background, rgba(128, 128, 128, 0.12))
+	);
+	--muted-foreground: var(
+		--vscode-descriptionForeground,
+		var(--vscode-disabledForeground, #9d9d9d)
+	);
+
+	/* Accent (hover / highlighted item) */
+	--accent: var(
+		--vscode-list-hoverBackground,
+		var(--vscode-toolbar-hoverBackground, rgba(128, 128, 128, 0.15))
+	);
+	--accent-foreground: var(
+		--vscode-list-hoverForeground,
+		var(--vscode-foreground, var(--vscode-editor-foreground, #d4d4d4))
+	);
+
+	/* Destructive */
+	--destructive: var(--vscode-errorForeground, #f14c4c);
+
+	/* Borders / inputs / rings */
+	--border: var(
+		--vscode-widget-border,
+		var(
+			--vscode-panel-border,
+			var(
+				--vscode-editorGroup-border,
+				var(--vscode-contrastBorder, rgba(128, 128, 128, 0.45))
+			)
+		)
+	);
+	--input: var(
+		--vscode-input-background,
+		var(--vscode-editor-background, rgba(128, 128, 128, 0.15))
+	);
+	--ring: var(--vscode-focusBorder, var(--vscode-button-background, #0e639c));
+
+	/* Sidebar (used by some shadcn components we don't currently render,
+	   kept aligned with VSCode anyway). */
+	--sidebar: var(--vscode-sideBar-background, var(--vscode-editor-background));
+	--sidebar-foreground: var(--vscode-sideBar-foreground, var(--vscode-foreground));
+	--sidebar-primary: var(--vscode-button-background);
+	--sidebar-primary-foreground: var(--vscode-button-foreground);
+	--sidebar-accent: var(--vscode-list-hoverBackground);
+	--sidebar-accent-foreground: var(--vscode-list-hoverForeground, var(--vscode-foreground));
+	--sidebar-border: var(--vscode-sideBar-border, var(--vscode-panel-border, rgba(255, 255, 255, 0.12)));
+	--sidebar-ring: var(--vscode-focusBorder);
+
+	/* Pull body font from VSCode so the viewer picks up the editor family /
+	   size the user configured. */
+	--font-sans: var(--vscode-font-family, 'Inter Variable', sans-serif);
+}
+
+/* Surface the theme class VSCode provides as body modifiers onto shadcn's
+   own `.dark` toggle — shadcn-svelte components use `.dark` as the dark-mode
+   selector, but VSCode exposes it as `body.vscode-dark`. */
+body.vscode-dark,
+body.vscode-high-contrast:not(.vscode-high-contrast-light) {
+	color-scheme: dark;
+}
+body.vscode-dark #root,
+body.vscode-high-contrast:not(.vscode-high-contrast-light) #root {
+	/* shadcn-svelte scopes dark tokens under `.dark`. The token overrides
+	   above already use VSCode vars, but this keeps components that branch on
+	   the `.dark` selector (dropdown shadows, focus rings) consistent. */
+}
+body.vscode-light,
+body.vscode-high-contrast-light {
+	color-scheme: light;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+	height: 100vh;
+	width: 100vw;
+	overflow: hidden;
+	background: var(--vscode-editor-background);
+	color: var(--vscode-editor-foreground);
+	font-family: var(--vscode-font-family, 'Inter Variable', sans-serif);
+	font-size: var(--vscode-font-size, 13px);
+}
+
+#root {
+	height: 100%;
+	width: 100%;
+}

@@ -1,0 +1,27 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build:ext",
+      "type": "shell",
+      "command": "bun run build",
+      "presentation": { "reveal": "silent" }
+    },
+    {
+      "label": "dev:ext",
+      "type": "shell",
+      "command": "bun run dev:ext",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "reveal": "always" }
+    },
+    {
+      "label": "dev:web",
+      "type": "shell",
+      "command": "bun run dev:web",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "reveal": "always" }
+    }
+  ]
+}

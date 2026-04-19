@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "types": ["node"],
+    "outDir": "./dist/host",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo-host",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "include": ["src/host/**/*"]
+}

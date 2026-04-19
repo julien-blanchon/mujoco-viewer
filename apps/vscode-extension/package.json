@@ -1,0 +1,420 @@
+{
+  "name": "mujoco-viewer",
+  "displayName": "MuJoCo Viewer",
+  "description": "Preview, edit, and debug MuJoCo (MJCF) models directly in VS Code — 3D scene, live editor sync, inspectors.",
+  "version": "0.1.0",
+  "publisher": "julienblanchon",
+  "type": "module",
+  "license": "MIT",
+  "preview": true,
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "main": "./dist/host/extension.cjs",
+  "icon": "resources/icon.png",
+  "galleryBanner": {
+    "color": "#1f2937",
+    "theme": "dark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/julien-blanchon/mujoco-viewer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/julien-blanchon/mujoco-viewer/issues"
+  },
+  "homepage": "https://github.com/julien-blanchon/mujoco-viewer#readme",
+  "qna": "https://github.com/julien-blanchon/mujoco-viewer/discussions",
+  "keywords": [
+    "mujoco",
+    "mjcf",
+    "robotics",
+    "simulation",
+    "3d",
+    "xml",
+    "physics",
+    "viewer",
+    "preview"
+  ],
+  "categories": [
+    "Visualization",
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:xml",
+    "onCustomEditor:mujoco-viewer.editor"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "mujoco-viewer.open",
+        "title": "Open with MuJoCo Viewer",
+        "category": "MuJoCo",
+        "icon": {
+          "light": "resources/icon-light.svg",
+          "dark": "resources/icon-dark.svg"
+        }
+      },
+      {
+        "command": "mujoco-viewer.openToSide",
+        "title": "Open with MuJoCo Viewer to the Side",
+        "category": "MuJoCo"
+      },
+      {
+        "command": "mujoco-viewer.reload",
+        "title": "Reload Model",
+        "category": "MuJoCo",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "mujoco-viewer.openTextEditor",
+        "title": "Open as Text Editor",
+        "category": "MuJoCo",
+        "icon": "$(go-to-file)"
+      },
+      {
+        "command": "mujoco-viewer.revealModelFolder",
+        "title": "Reveal Model Folder in Explorer",
+        "category": "MuJoCo"
+      },
+      {
+        "command": "mujoco-viewer.resetCamera",
+        "title": "Reset Camera View",
+        "category": "MuJoCo"
+      },
+      {
+        "command": "mujoco-viewer.togglePlay",
+        "title": "Toggle Play / Pause",
+        "category": "MuJoCo"
+      },
+      {
+        "command": "mujoco-viewer.resetSimulation",
+        "title": "Reset Simulation",
+        "category": "MuJoCo"
+      },
+      {
+        "command": "mujoco-viewer.takeScreenshot",
+        "title": "Save Screenshot…",
+        "category": "MuJoCo",
+        "icon": "$(device-camera)"
+      },
+      {
+        "command": "mujoco-viewer.showOutput",
+        "title": "Show Output Log",
+        "category": "MuJoCo"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "mujoco-viewer.open",
+          "when": "resourceLangId == xml && !mujocoViewer.active",
+          "group": "navigation"
+        },
+        {
+          "command": "mujoco-viewer.reload",
+          "when": "mujocoViewer.active",
+          "group": "navigation@1"
+        },
+        {
+          "command": "mujoco-viewer.takeScreenshot",
+          "when": "mujocoViewer.active",
+          "group": "navigation@2"
+        },
+        {
+          "command": "mujoco-viewer.openTextEditor",
+          "when": "mujocoViewer.active",
+          "group": "navigation@3"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "mujoco-viewer.open",
+          "when": "resourceExtname == .xml",
+          "group": "navigation@20"
+        },
+        {
+          "command": "mujoco-viewer.openToSide",
+          "when": "resourceExtname == .xml",
+          "group": "navigation@21"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "mujoco-viewer.open",
+          "when": "resourceLangId == xml",
+          "group": "navigation@20"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "mujoco-viewer.open",
+          "when": "editorLangId == xml || resourceExtname == .xml"
+        },
+        {
+          "command": "mujoco-viewer.openToSide",
+          "when": "editorLangId == xml || resourceExtname == .xml"
+        },
+        {
+          "command": "mujoco-viewer.reload",
+          "when": "mujocoViewer.active"
+        },
+        {
+          "command": "mujoco-viewer.openTextEditor",
+          "when": "mujocoViewer.active"
+        },
+        {
+          "command": "mujoco-viewer.revealModelFolder",
+          "when": "mujocoViewer.active"
+        },
+        {
+          "command": "mujoco-viewer.resetCamera",
+          "when": "mujocoViewer.active"
+        },
+        {
+          "command": "mujoco-viewer.togglePlay",
+          "when": "mujocoViewer.active"
+        },
+        {
+          "command": "mujoco-viewer.resetSimulation",
+          "when": "mujocoViewer.active"
+        },
+        {
+          "command": "mujoco-viewer.takeScreenshot",
+          "when": "mujocoViewer.active"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "mujoco-viewer.togglePlay",
+        "key": "space",
+        "when": "mujocoViewer.active && !editorTextFocus"
+      },
+      {
+        "command": "mujoco-viewer.resetSimulation",
+        "key": "r",
+        "when": "mujocoViewer.active && !editorTextFocus"
+      },
+      {
+        "command": "mujoco-viewer.resetCamera",
+        "key": "f",
+        "when": "mujocoViewer.active && !editorTextFocus"
+      },
+      {
+        "command": "mujoco-viewer.reload",
+        "key": "ctrl+shift+r",
+        "mac": "cmd+shift+r",
+        "when": "mujocoViewer.active"
+      }
+    ],
+    "customEditors": [
+      {
+        "viewType": "mujoco-viewer.editor",
+        "displayName": "MuJoCo Viewer",
+        "selector": [
+          {
+            "filenamePattern": "*.xml"
+          }
+        ],
+        "priority": "option"
+      }
+    ],
+    "configuration": {
+      "title": "MuJoCo Viewer",
+      "properties": {
+        "mujoco-viewer.simulation.autoPlay": {
+          "type": "boolean",
+          "default": false,
+          "description": "Start the physics simulation automatically when a model loads. When off, the viewer opens paused and you step forward with Space or the Play button.",
+          "scope": "window"
+        },
+        "mujoco-viewer.simulation.pauseOnFileChange": {
+          "type": "boolean",
+          "default": true,
+          "description": "Pause the simulation whenever the underlying XML file changes (e.g. you type in the editor). Prevents the simulation from racing ahead while you iterate on the model.",
+          "scope": "window"
+        },
+        "mujoco-viewer.camera.flySpeed": {
+          "type": "number",
+          "default": 0.6,
+          "minimum": 0.05,
+          "maximum": 5,
+          "markdownDescription": "Base speed of the WASD/arrow-key fly navigation, in scene-radii per second. Actual speed scales with the current model's size so tiny robots and warehouse-scale scenes feel equivalent.",
+          "scope": "window"
+        },
+        "mujoco-viewer.camera.boostMultiplier": {
+          "type": "number",
+          "default": 4,
+          "minimum": 1,
+          "maximum": 20,
+          "description": "Multiplier applied to fly speed while Shift is held.",
+          "scope": "window"
+        },
+        "mujoco-viewer.camera.slowDivisor": {
+          "type": "number",
+          "default": 3,
+          "minimum": 1,
+          "maximum": 20,
+          "description": "Divisor applied to fly speed while Alt or Ctrl is held, for fine positioning.",
+          "scope": "window"
+        },
+        "mujoco-viewer.camera.invertY": {
+          "type": "boolean",
+          "default": false,
+          "description": "Invert the Y axis when flying (W/Up moves down instead of up on screen).",
+          "scope": "window"
+        },
+        "mujoco-viewer.rendering.shadows": {
+          "type": "boolean",
+          "default": true,
+          "description": "Render directional-light shadows. Disable for a modest FPS boost on integrated GPUs.",
+          "scope": "window"
+        },
+        "mujoco-viewer.rendering.showGrid": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the default ground plane grid. Has no effect when the MJCF declares its own floor geom.",
+          "scope": "window"
+        },
+        "mujoco-viewer.rendering.showSkybox": {
+          "type": "boolean",
+          "default": true,
+          "description": "Render the default sky gradient behind the scene. When off, the background uses `mujoco-viewer.rendering.backgroundStyle`.",
+          "scope": "window"
+        },
+        "mujoco-viewer.rendering.backgroundStyle": {
+          "type": "string",
+          "enum": [
+            "vscode",
+            "skybox",
+            "solid"
+          ],
+          "enumDescriptions": [
+            "Match the current VSCode editor background color.",
+            "Use the default sky gradient (ignored if `showSkybox` is off).",
+            "Solid dark gray."
+          ],
+          "default": "skybox",
+          "description": "Background rendering style behind the MuJoCo scene.",
+          "scope": "window"
+        },
+        "mujoco-viewer.editor.openBehavior": {
+          "type": "string",
+          "enum": [
+            "replace",
+            "beside"
+          ],
+          "enumDescriptions": [
+            "Open the viewer in the same editor group as the XML (replaces the text editor tab, Netron-style).",
+            "Open the viewer in a new editor group to the side, keeping the XML editor visible."
+          ],
+          "default": "replace",
+          "description": "Where the MuJoCo Viewer opens when you run `Open with MuJoCo Viewer`.",
+          "scope": "window"
+        },
+        "mujoco-viewer.editor.defaultViewer": {
+          "type": "string",
+          "enum": [
+            "ask",
+            "viewer",
+            "text",
+            "mjcfOnly"
+          ],
+          "enumDescriptions": [
+            "Ask on each open via VSCode's standard editor picker.",
+            "Always open `.xml` files in the MuJoCo Viewer (you can still use `Open With…`).",
+            "Always open in the text editor (the viewer is opt-in via the command).",
+            "Open files matching `*.mjcf.xml` or `*.mujoco.xml` in the viewer; everything else in the text editor."
+          ],
+          "default": "ask",
+          "markdownDescription": "Which editor VSCode selects by default when opening `.xml` files. Writes to `workbench.editorAssociations` on change.\n\nName your MuJoCo files `*.mjcf.xml` or `*.mujoco.xml` to benefit from the `mjcfOnly` mode and automatic schema validation.",
+          "scope": "window"
+        },
+        "mujoco-viewer.panels.defaultCollapsed": {
+          "type": "boolean",
+          "default": false,
+          "description": "Collapse all side panels by default when the viewer opens. Useful on small screens.",
+          "scope": "window"
+        },
+        "mujoco-viewer.model.schemaValidation": {
+          "type": "string",
+          "enum": [
+            "on",
+            "off"
+          ],
+          "default": "on",
+          "markdownDescription": "Register the bundled MuJoCo XSD with the [Red Hat XML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-xml) for `*.mjcf.xml` and `*.mujoco.xml` files. Provides autocomplete and validation in the text editor. Requires the XML extension to be installed.",
+          "scope": "window"
+        },
+        "mujoco-viewer.screenshot.directory": {
+          "type": "string",
+          "default": "",
+          "description": "Default folder for `Save Screenshot…`. Leave blank to prompt each time.",
+          "scope": "window"
+        },
+        "mujoco-viewer.developer.logLevel": {
+          "type": "string",
+          "enum": [
+            "off",
+            "error",
+            "warn",
+            "info",
+            "debug"
+          ],
+          "default": "warn",
+          "description": "Verbosity of the MuJoCo Viewer output channel.",
+          "scope": "window"
+        }
+      }
+    },
+    "configurationDefaults": {
+      "xml.fileAssociations": [
+        {
+          "pattern": "**/*.mjcf.xml",
+          "systemId": "https://raw.githubusercontent.com/julien-blanchon/mujoco-schema/main/mujoco_schema.xsd"
+        },
+        {
+          "pattern": "**/*.mujoco.xml",
+          "systemId": "https://raw.githubusercontent.com/julien-blanchon/mujoco-schema/main/mujoco_schema.xsd"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "dev": "npm-run-all --parallel dev:host dev:webview",
+    "dev:host": "node esbuild.config.mjs --watch",
+    "dev:webview": "vite build --watch --mode development",
+    "build": "vite build && node esbuild.config.mjs --production",
+    "build:host": "node esbuild.config.mjs --production",
+    "build:webview": "vite build",
+    "launch": "bun run build && node ./scripts/launch.mjs",
+    "launch:cursor": "bun run build && cursor --extensionDevelopmentPath=\"$PWD\" \"$PWD/../../debug/fixtures/humanoid.xml\"",
+    "launch:code": "bun run build && code --extensionDevelopmentPath=\"$PWD\" \"$PWD/../../debug/fixtures/humanoid.xml\"",
+    "package": "bun run build && vsce package --no-dependencies",
+    "typecheck": "tsc --noEmit -p tsconfig.host.json && tsc --noEmit -p tsconfig.webview.json",
+    "check": "bun run typecheck"
+  },
+  "dependencies": {
+    "@mujoco-viewer/protocol": "workspace:*",
+    "@mujoco-viewer/viewer-ui": "workspace:*",
+    "mujoco-svelte": "workspace:*"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^6.0.0",
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/node": "^22.0.0",
+    "@types/three": "^0.181.0",
+    "@types/vscode": "^1.100.0",
+    "@threlte/core": "^8.5.0",
+    "@threlte/extras": "^9.3.0",
+    "@vscode/vsce": "^3.0.0",
+    "esbuild": "^0.25.0",
+    "npm-run-all2": "^7.0.0",
+    "svelte": "^5.50.0",
+    "tailwindcss": "^4.0.0",
+    "three": "^0.181.0",
+    "typescript": "^5.8.0",
+    "vite": "^6.0.0"
+  }
+}
