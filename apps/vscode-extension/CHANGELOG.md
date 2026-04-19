@@ -4,6 +4,17 @@ All notable changes to the MuJoCo Viewer extension will be documented in this fi
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] — 2026-04-19
+
+### Fixed
+
+- **Keyboard shortcuts no longer steal keys from VS Code.** Space in the terminal, editor, or any other panel is no longer swallowed by the viewer's play/pause handler. The window-level `keydown` listener now guards on `document.hasFocus()` and only fires when focus is on `body` or the 3D canvas — so Space on a tree row, button, or rename input stays with that widget instead of double-firing through to the sim. Applies to both the play/pause shortcut and the keyboard teleop hook.
+
+### Changed
+
+- **"Center of mass" overlay is off by default.** Still toggleable under *Controls → Visual options → Elements*.
+- **Control-pane folders collapse by default.** *Simulation*, *Environment*, *Elements*, and *Render* now start closed, matching *Frame axes* / *Groups* / *Scales* and reducing visual noise on first open.
+
 ## [0.1.1] — 2026-04-19
 
 ### Changed

@@ -1,6 +1,6 @@
 # MuJoCo Viewer
 
-**Live 3D previews, edits, and debugging for MuJoCo models — inside VS Code.**
+**Live 3D previews, edits, and debugging for MuJoCo models — inside VS Code, Cursor, Windsurf & any other VS Code-based IDE.**
 
 Open any MJCF `.xml` and watch the simulation respond as you type. The extension handles `<include>` resolution, mesh / texture / heightfield loading, compile-error feedback, gizmo edits that round-trip to the XML as undoable edits, and a full inspector surface (bodies, joints, actuators, cameras, lights, materials, tendons, keyframes).
 
@@ -8,7 +8,7 @@ Open any MJCF `.xml` and watch the simulation respond as you type. The extension
 
 This repo is a monorepo with the extension, a browser debug harness, and the underlying Svelte 5 + Threlte + WASM library that powers both.
 
-- **Extension users** → install from the VS Code Marketplace (search *MuJoCo Viewer*), or see [`apps/vscode-extension/README.md`](apps/vscode-extension/README.md).
+- **Extension users** → install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=julienblanchon.mujoco-viewer) (VS Code) or [Open VSX](https://open-vsx.org/extension/julienblanchon/mujoco-viewer) (Cursor / Windsurf / VSCodium / code-server). Full install & usage docs in [`apps/vscode-extension/README.md`](apps/vscode-extension/README.md).
 - **Contributors** → [`CONTRIBUTING.md`](CONTRIBUTING.md).
 - **Library consumers** → [`packages/mujoco-svelte/README.md`](packages/mujoco-svelte/README.md).
 
@@ -48,7 +48,7 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full dev workflow, and each pac
 
 ## Status
 
-- VS Code extension: preview (`0.1.0`), not yet on the marketplace.
+- VS Code extension: preview (`0.1.2`). Published on both the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=julienblanchon.mujoco-viewer) and [Open VSX](https://open-vsx.org/extension/julienblanchon/mujoco-viewer) so it installs on VS Code, Cursor, Windsurf, VSCodium, Gitpod, code-server, and other forks.
 - Packages: workspace-internal. `mujoco-svelte` is the most externally-useful; API is stabilising.
 
 ## License

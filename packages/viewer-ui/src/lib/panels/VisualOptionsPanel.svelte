@@ -37,7 +37,7 @@ Shadcn-style pane mirroring MuJoCo's mjvOption / mjvScene.flags. Drives the
 </script>
 
 <Pane.Root title="Visual options" variant="flat">
-	<Pane.Folder title="Environment" icon={MountainIcon} open={true}>
+	<Pane.Folder title="Environment" icon={MountainIcon} open={false}>
 		<Pane.Checkbox
 			bind:value={options.render.defaultFloor}
 			label="Default floor"
@@ -48,7 +48,7 @@ Shadcn-style pane mirroring MuJoCo's mjvOption / mjvScene.flags. Drives the
 		/>
 	</Pane.Folder>
 
-	<Pane.Folder title="Elements" icon={ShapesIcon} open={true}>
+	<Pane.Folder title="Elements" icon={ShapesIcon} open={false}>
 		<Pane.Checkbox bind:value={options.vis.joint} label="Joints" />
 		<Pane.Checkbox bind:value={options.vis.com} label="Center of mass" />
 		<Pane.Checkbox bind:value={options.vis.tendon} label="Tendons" />
@@ -60,7 +60,7 @@ Shadcn-style pane mirroring MuJoCo's mjvOption / mjvScene.flags. Drives the
 		<Pane.Checkbox bind:value={options.vis.perturbForce} label="Perturb force" />
 	</Pane.Folder>
 
-	<Pane.Folder title="Render" icon={PaintbrushIcon} open={true}>
+	<Pane.Folder title="Render" icon={PaintbrushIcon} open={false}>
 		<Pane.Checkbox bind:value={options.render.shadow} label="Shadows" />
 		<Pane.Checkbox bind:value={options.render.skybox} label="Skybox" />
 		<Pane.Checkbox bind:value={options.render.wireframe} label="Wireframe" />

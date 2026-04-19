@@ -1,6 +1,6 @@
-# MuJoCo Viewer for VS Code
+# MuJoCo Viewer for VS Code, Cursor & other VS Code-based IDEs
 
-A live 3D viewer and editor for [MuJoCo](https://mujoco.org) MJCF models, built into VS Code.
+A live 3D viewer and editor for [MuJoCo](https://mujoco.org) MJCF models — runs in VS Code, Cursor, Windsurf, VSCodium, and any other IDE that speaks the VS Code extension API.
 
 Open an MJCF `.xml` file and get a real-time physics simulation alongside your code. Edit attributes in the XML and watch the scene update. Click anything in the 3D view to inspect and tweak it, and have your changes flow back into the XML as undoable edits.
 
@@ -38,9 +38,21 @@ A workbench for iterating on MuJoCo robot models. The usual loop when writing MJ
 
 ## Install
 
-1. Install the extension from the Marketplace (search **MuJoCo Viewer**).
+### VS Code
+
+1. Open the Extensions view (`Cmd/Ctrl+Shift+X`) and search **MuJoCo Viewer**, or install from the [VS Code Marketplace page](https://marketplace.visualstudio.com/items?itemName=julienblanchon.mujoco-viewer).
 2. Open any MJCF `.xml` file (anything with `<mujoco>` as the root element).
 3. Run **MuJoCo: Open with MuJoCo Viewer** from the command palette, or click the viewer icon in the editor title bar.
+
+### Cursor, Windsurf, VSCodium & other forks
+
+These IDEs ship with the [Open VSX](https://open-vsx.org) gallery instead of the VS Code Marketplace. The extension is published on both, so the install steps are the same — just the source differs:
+
+- **Cursor** — Extensions view → search *MuJoCo Viewer* (Cursor reads Open VSX by default).
+- **Windsurf** — Extensions view → search *MuJoCo Viewer*.
+- **VSCodium / Gitpod / code-server** — Extensions view → search *MuJoCo Viewer*, or install directly from the [Open VSX page](https://open-vsx.org/extension/julienblanchon/mujoco-viewer).
+
+If your IDE can't find it in its built-in search, grab the `.vsix` from the [GitHub Releases](https://github.com/julien-blanchon/mujoco-viewer/releases) and install it via **Extensions → … → Install from VSIX…** — the same file works in every VS Code-based IDE.
 
 Models included with MuJoCo (humanoid, cassie, shadow hand, etc.) all work out of the box.
 
@@ -111,8 +123,8 @@ All settings live under `mujoco-viewer.*` and update live — no reload needed.
 
 ## Requirements
 
-- VS Code 1.100 or newer
-- **Optional:** [Red Hat XML](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-xml) — only needed for in-editor MJCF autocomplete and validation. The viewer itself works without it.
+- VS Code 1.100+ (or Cursor, Windsurf, VSCodium, code-server, Gitpod — any IDE on the same extension API).
+- **Optional:** [Red Hat XML](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-xml) ([Open VSX mirror](https://open-vsx.org/extension/redhat/vscode-xml)) — only needed for in-editor MJCF autocomplete and validation. The viewer itself works without it.
 
 ## Privacy
 

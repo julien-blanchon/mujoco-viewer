@@ -18,7 +18,7 @@ without keeping the toolbar buttons in their peripheral vision.
 </script>
 
 <Pane.Root title="Playback" variant="flat">
-	<Pane.Folder title="Simulation" icon={PlayIcon} open={true}>
+	<Pane.Folder title="Simulation" icon={PlayIcon} open={false}>
 		{#if sim}
 			<Pane.Monitor value={sim.time} label="Time (s)" graph bufferSize={120} />
 			<Pane.Monitor value={sim.paused ? 'paused' : 'running'} label="State" />

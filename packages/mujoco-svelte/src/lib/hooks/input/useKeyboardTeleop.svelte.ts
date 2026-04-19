@@ -41,10 +41,28 @@ export function useKeyboardTeleop(getOptions: () => KeyboardTeleopOptions): void
 		for (const k of toggleState.keys()) if (!validKeys.has(k)) toggleState.delete(k);
 	});
 
+	// Teleop keys must not fire when focus is outside the viewer (e.g. VS Code
+	// terminal, or a text field inside the viewer UI). `activeElement === body`
+	// or the scene canvas means the user is "interacting with the sim", not
+	// typing into something.
+	function shouldAcceptKey(e: KeyboardEvent): boolean {
+		if (!document.hasFocus()) return false;
+		const target = e.target as HTMLElement | null;
+		if (target) {
+			const tag = target.tagName;
+			if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return false;
+			if (target.isContentEditable) return false;
+		}
+		const active = document.activeElement;
+		if (!active || active === document.body) return true;
+		return active.tagName === 'CANVAS';
+	}
+
 	$effect(() => {
 		const onKeyDown = (e: KeyboardEvent) => {
 			const opts = getOptions();
 			if (opts.enabled === false) return;
+			if (!shouldAcceptKey(e)) return;
 			const key = e.key.toLowerCase();
 			const binding = opts.bindings[key];
 			if (!binding) return;
@@ -54,6 +72,8 @@ export function useKeyboardTeleop(getOptions: () => KeyboardTeleopOptions): void
 			}
 		};
 		const onKeyUp = (e: KeyboardEvent) => {
+			// Always release on keyup so a key that started while focused
+			// doesn't get "stuck" if focus moves away mid-press.
 			pressed.delete(e.key.toLowerCase());
 		};
 		window.addEventListener('keydown', onKeyDown);

@@ -52,7 +52,7 @@ export class VisualOptions {
 		camera: true,
 		tendon: true,
 		joint: true,
-		com: true,
+		com: false,
 		inertia: false,
 		contactPoint: false,
 		contactForce: false,

@@ -4,8 +4,18 @@ KeyboardShortcuts — central `keydown` handler that dispatches to commands.
 
 One `<svelte:window>` instead of N per-panel bindings means shortcuts don't
 collide or fire out of order, and the full key-map is discoverable in one
-file. Typing into form fields (INPUT/TEXTAREA/contenteditable) is always
-ignored to avoid stealing single-character keys.
+file.
+
+Guards against stealing keys in three situations:
+ 1. Webview isn't focused (user is in VS Code terminal / editor / etc.) —
+    `document.hasFocus()` is false in that case, so we bail.
+ 2. Some descendant widget already claimed the key (tree row's Space-to-select,
+    button's Space-to-activate) — we check `e.defaultPrevented` and, more
+    importantly, we only fire when focus is on `body` or the scene canvas.
+    Buttons / tree rows / form inputs all set `activeElement` to themselves,
+    so the global shortcut naturally defers to them.
+ 3. Form inputs (INPUT/TEXTAREA/SELECT/contenteditable) — belt-and-braces,
+    in case someone forwards an event past the activeElement check.
 -->
 <script lang="ts">
 	import { commands } from './commands/registry.svelte.js';
@@ -19,8 +29,20 @@ ignored to avoid stealing single-character keys.
 		return false;
 	}
 
+	// Global viewer shortcuts should only fire when nothing else owns the key.
+	// `activeElement === body` means no focused widget; a focused canvas is
+	// treated the same so clicking into the 3D scene still enables shortcuts.
+	function shouldHandleGlobally(): boolean {
+		if (!document.hasFocus()) return false;
+		const active = document.activeElement;
+		if (!active || active === document.body) return true;
+		return active.tagName === 'CANVAS';
+	}
+
 	function handleKey(e: KeyboardEvent) {
+		if (e.defaultPrevented) return;
 		if (isFormTarget(e.target)) return;
+		if (!shouldHandleGlobally()) return;
 
 		// Pause / resume
 		if (e.code === 'Space') {
