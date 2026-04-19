@@ -4,6 +4,17 @@ All notable changes to the MuJoCo Viewer extension will be documented in this fi
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] — 2026-04-19
+
+### Changed
+
+- **README rewritten for the Marketplace** — leads with what the extension is for; screenshots use absolute raw.githubusercontent URLs so they render on the listing page.
+- **`*.mujoco.xml` is now a first-class MJCF suffix** alongside `*.mjcf.xml` — both trigger `mjcfOnly` default-viewer mode and auto-register the bundled XSD with Red Hat XML.
+
+### Added
+
+- **Schema-validation walkthrough** in the README with example screenshots (attribute completion, enum completion, inline validation).
+
 ## [0.1.0] — 2026-04-18
 
 Initial preview release.

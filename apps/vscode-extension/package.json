@@ -2,7 +2,7 @@
   "name": "mujoco-viewer",
   "displayName": "MuJoCo Viewer",
   "description": "Preview, edit, and debug MuJoCo (MJCF) models directly in VS Code — 3D scene, live editor sync, inspectors.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "julienblanchon",
   "type": "module",
   "license": "MIT",
