@@ -93,20 +93,18 @@ Schema registration is on by default — turn it off via `mujoco-viewer.model.sc
 
 ## Commands
 
-| Command                                        | Default keybinding       |
-| ---------------------------------------------- | ------------------------ |
-| `MuJoCo: Open with MuJoCo Viewer`              | —                        |
-| `MuJoCo: Open with MuJoCo Viewer to the Side`  | —                        |
-| `MuJoCo: Reload Model`                         | `Cmd/Ctrl+Shift+R`       |
-| `MuJoCo: Toggle Play / Pause`                  | `Space`                  |
-| `MuJoCo: Reset Simulation`                     | `R`                      |
-| `MuJoCo: Reset Camera View`                    | `F`                      |
-| `MuJoCo: Save Screenshot…`                     | —                        |
-| `MuJoCo: Open as Text Editor`                  | —                        |
-| `MuJoCo: Reveal Model Folder in Explorer`      | —                        |
-| `MuJoCo: Show Output Log`                      | —                        |
+All commands are available from the Command Palette (`Cmd/Ctrl+Shift+P`). No default keybindings — the extension used to ship play/pause/reset bindings on `Space` / `R` / `F`, but those could steal keys from other VS Code panels, so they've been removed. Bind them yourself via **Preferences → Keyboard Shortcuts** if you miss them.
 
-Playback keybindings only fire while a viewer tab is focused and the text editor is not — `Space` / `R` / `F` stay safe to type normally.
+- `MuJoCo: Open with MuJoCo Viewer`
+- `MuJoCo: Open with MuJoCo Viewer to the Side`
+- `MuJoCo: Reload Model`
+- `MuJoCo: Toggle Play / Pause`
+- `MuJoCo: Reset Simulation`
+- `MuJoCo: Reset Camera View`
+- `MuJoCo: Save Screenshot…`
+- `MuJoCo: Open as Text Editor`
+- `MuJoCo: Reveal Model Folder in Explorer`
+- `MuJoCo: Show Output Log`
 
 ## Settings
 

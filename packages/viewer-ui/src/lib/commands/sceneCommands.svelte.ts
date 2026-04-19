@@ -36,7 +36,6 @@ export function registerSceneCommands(deps: SceneCommandDeps): () => void {
 		commands.register({
 			id: 'selection.clear',
 			label: 'Clear selection',
-			shortcut: 'Escape',
 			run: () => {
 				const sim = currentSim(scene);
 				if (sim) sim.selection = null;
@@ -81,7 +80,6 @@ export function registerSceneCommands(deps: SceneCommandDeps): () => void {
 		commands.register({
 			id: 'camera.free',
 			label: 'Free camera',
-			shortcut: 'Escape',
 			run: () => {
 				camera.mode = 'free';
 			}
@@ -89,7 +87,6 @@ export function registerSceneCommands(deps: SceneCommandDeps): () => void {
 		commands.register({
 			id: 'camera.resetView',
 			label: 'Reset view',
-			shortcut: 'f',
 			run: () => {
 				camera.resetView();
 			}
@@ -97,7 +94,6 @@ export function registerSceneCommands(deps: SceneCommandDeps): () => void {
 		commands.register({
 			id: 'camera.cycleNamed',
 			label: 'Cycle named cameras',
-			shortcut: '[ / ]',
 			run: (dir: unknown) => {
 				const sim = currentSim(scene);
 				if (!sim) return;
@@ -117,7 +113,6 @@ export function registerSceneCommands(deps: SceneCommandDeps): () => void {
 		commands.register({
 			id: 'sim.togglePause',
 			label: 'Pause / resume simulation',
-			shortcut: 'Space',
 			run: () => {
 				scene.paused = !scene.paused;
 			}
@@ -139,7 +134,6 @@ export function registerSceneCommands(deps: SceneCommandDeps): () => void {
 		commands.register({
 			id: 'sim.reset',
 			label: 'Reset',
-			shortcut: 'r',
 			run: () => {
 				const sim = currentSim(scene);
 				if (!sim) return;

@@ -3,7 +3,6 @@
 export { default as ViewerApp } from "./ViewerApp.svelte";
 export { default as AutoFrame } from "./AutoFrame.svelte";
 export { default as HoverTag } from "./HoverTag.svelte";
-export { default as KeyboardShortcuts } from "./KeyboardShortcuts.svelte";
 export { default as LoadingOverlay } from "./LoadingOverlay.svelte";
 export { default as SceneStats } from "./SceneStats.svelte";
 export { default as WhenReady } from "./WhenReady.svelte";

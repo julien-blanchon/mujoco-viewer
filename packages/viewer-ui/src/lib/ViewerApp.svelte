@@ -28,7 +28,6 @@
 	import { editSession } from '$lib/stores/editSession.svelte.js';
 	import { registerSceneCommands } from '$lib/commands/sceneCommands.svelte.js';
 	import { commands } from '$lib/commands/registry.svelte.js';
-	import KeyboardShortcuts from '$lib/KeyboardShortcuts.svelte';
 	import SceneStage from '$lib/scene/SceneStage.svelte';
 	import PanelStack from '$lib/scene/PanelStack.svelte';
 	import ResetCameraButton from '$lib/scene/ResetCameraButton.svelte';
@@ -243,8 +242,6 @@
 </script>
 
 <Tooltip.Provider delayDuration={300}>
-	<KeyboardShortcuts />
-
 	<div class="relative h-screen w-screen overflow-hidden bg-background">
 		<main class="absolute inset-0">
 			<SceneStage {scene} {camera} {visualOptions} />

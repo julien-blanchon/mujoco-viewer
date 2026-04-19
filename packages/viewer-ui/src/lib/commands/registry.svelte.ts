@@ -20,7 +20,7 @@ export interface Command<A extends unknown[] = unknown[]> {
 	id: string;
 	/** Human-readable label for menus / palette. */
 	label?: string;
-	/** Informational keyboard hint; actual binding done by `KeyboardShortcuts`. */
+	/** Informational keyboard hint shown in menus / palette (no binding). */
 	shortcut?: string;
 	run: (...args: A) => void | Promise<void>;
 }

@@ -4,6 +4,12 @@ All notable changes to the MuJoCo Viewer extension will be documented in this fi
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4] — 2026-04-19
+
+### Removed
+
+- **All default keyboard shortcuts.** The play/pause (`Space`), reset (`R`), reset-camera (`F`), and reload (`Cmd/Ctrl+Shift+R`) bindings have been removed — both the VS Code-side bindings and the webview's window-level handler. They kept leaking into the terminal and other panels regardless of focus-scoping fixes, and the risk of stealing keys outweighed the convenience. All commands are still available from the Command Palette, and users can bind any of them manually via **Preferences → Keyboard Shortcuts**.
+
 ## [0.1.3] — 2026-04-19
 
 ### Added
