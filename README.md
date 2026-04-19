@@ -48,7 +48,7 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full dev workflow, and each pac
 
 ## Status
 
-- VS Code extension: preview (`0.1.5`). Published on both the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=julienblanchon.mujoco-viewer) and [Open VSX](https://open-vsx.org/extension/julienblanchon/mujoco-viewer) so it installs on VS Code, Cursor, Windsurf, VSCodium, Gitpod, code-server, and other forks.
+- VS Code extension: preview (`0.1.6`). Published on both the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=julienblanchon.mujoco-viewer) and [Open VSX](https://open-vsx.org/extension/julienblanchon/mujoco-viewer) so it installs on VS Code, Cursor, Windsurf, VSCodium, Gitpod, code-server, and other forks.
 - Packages: workspace-internal. `mujoco-svelte` is the most externally-useful; API is stabilising.
 
 ## License

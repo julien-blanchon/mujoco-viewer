@@ -4,6 +4,18 @@ All notable changes to the MuJoCo Viewer extension will be documented in this fi
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.6] — 2026-04-19
+
+### Fixed
+
+- **Removing an element from the inspector now works.** The confirmation dialog used `window.confirm()`, which is silently blocked by the webview iframe's sandbox (`Ignored call to 'confirm()'. The document is sandboxed, and the 'allow-modals' keyword is not set.`) — so the trash button in the Inspector header appeared to do nothing. Swapped for a shadcn AlertDialog that renders inside the webview.
+- **Title-bar icons now scope per-tab, not globally.** The `Open with MuJoCo Viewer` icon used to disappear from every `.xml` title bar the moment any viewer tab existed anywhere in the window. Same for Reload / Save Screenshot / Open as Text on the viewer side — they leaked onto unrelated text-editor tabs. Switched the `when` clauses from the global `mujocoViewer.active` context key to the per-editor `activeCustomEditorId` one, so you always see the right icons for whatever tab is focused.
+- **Default floor collision lines up with the visual mesh.** The injected collision plane from 0.1.5 sat at z=0 while the visual floor mesh is at z=-1, so dropped objects landed one metre above where the ground *looked* to be. Collision plane now also sits at `pos="0 0 -1"`.
+
+### Changed
+
+- **README rewritten around "how do I actually open a file in the viewer"** — with four options in order of reliability (Command Palette, Explorer right-click, `defaultViewer` setting + `.mjcf.xml` naming, and pinning the title-bar icon). VS Code hides extension-contributed title icons behind the `…` overflow menu by default, so "click the icon" was never reliable advice and the docs now own up to that.
+
 ## [0.1.5] — 2026-04-19
 
 ### Fixed

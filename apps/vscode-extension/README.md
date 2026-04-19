@@ -40,9 +40,7 @@ A workbench for iterating on MuJoCo robot models. The usual loop when writing MJ
 
 ### VS Code
 
-1. Open the Extensions view (`Cmd/Ctrl+Shift+X`) and search **MuJoCo Viewer**, or install from the [VS Code Marketplace page](https://marketplace.visualstudio.com/items?itemName=julienblanchon.mujoco-viewer).
-2. Open any MJCF `.xml` file (anything with `<mujoco>` as the root element).
-3. Run **MuJoCo: Open with MuJoCo Viewer** from the command palette, or click the viewer icon in the editor title bar.
+Open the Extensions view (`Cmd/Ctrl+Shift+X`) and search **MuJoCo Viewer**, or install from the [VS Code Marketplace page](https://marketplace.visualstudio.com/items?itemName=julienblanchon.mujoco-viewer).
 
 ### Cursor, Windsurf, VSCodium & other forks
 
@@ -56,9 +54,15 @@ If your IDE can't find it in its built-in search, grab the `.vsix` from the [Git
 
 Models included with MuJoCo (humanoid, cassie, shadow hand, etc.) all work out of the box.
 
-## Make it open by default
+## Open a file in the viewer
 
-You can have MuJoCo files open in the viewer automatically instead of the text editor. Set `mujoco-viewer.editor.defaultViewer`:
+The extension ships a title-bar icon, but VS Code hides extension-contributed icons behind the `…` overflow menu by default and you have to right-click → *Show MuJoCo: Open with MuJoCo Viewer* to pin it. That's annoying enough that the rest of this section covers the ways that *don't* depend on the icon being visible.
+
+**Option A — Command Palette (always works).** Open the `.xml` file in a text editor, then `Cmd/Ctrl+Shift+P` → **MuJoCo: Open with MuJoCo Viewer**. Also available while a viewer tab is focused: `MuJoCo: Open as Text Editor` / `MuJoCo: Reload Model` / `MuJoCo: Save Screenshot…`.
+
+**Option B — Right-click a `.xml` in the Explorer.** The **Open with MuJoCo Viewer** / **… to the Side** entries are in the context menu unconditionally.
+
+**Option C — Make it the default editor (recommended).** Set `mujoco-viewer.editor.defaultViewer` in your user or workspace settings and forget about the icon entirely:
 
 | Value        | Behaviour                                                                    |
 | ------------ | ---------------------------------------------------------------------------- |
@@ -67,9 +71,9 @@ You can have MuJoCo files open in the viewer automatically instead of the text e
 | `text`       | Every `.xml` opens in the text editor (viewer is opt-in via the command).    |
 | `mjcfOnly`   | Only `*.mjcf.xml` / `*.mujoco.xml` open in the viewer; other `.xml` as text. |
 
-### Naming convention
+The cleanest setup is `mjcfOnly` + renaming your models to **`humanoid.mjcf.xml`** or **`humanoid.mujoco.xml`**. Those files open directly in the 3D viewer on double-click, plain `.xml` keeps its normal behaviour, and the XSD schema auto-registers for the MJCF suffixes.
 
-The cleanest setup is to name your MuJoCo models **`humanoid.mjcf.xml`** or **`humanoid.mujoco.xml`**. With `mjcfOnly`, only those files open in the viewer by default — plain `.xml` keeps its normal behaviour — and the XSD schema registers for them automatically.
+**Option D — Pin the title-bar icon once.** On a `.xml` tab, right-click the `…` button on the right → toggle on **MuJoCo: Open with MuJoCo Viewer**. VS Code remembers the pin per-workspace. Same for **MuJoCo: Reload Model**, **Save Screenshot…**, and **Open as Text Editor** when you're on a viewer tab.
 
 ## Schema validation
 

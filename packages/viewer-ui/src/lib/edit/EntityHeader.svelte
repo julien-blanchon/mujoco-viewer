@@ -17,6 +17,8 @@ editing lives in `EditableField` inside each `*Inspector.svelte`.
 	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
+	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
+	import { buttonVariants } from '$lib/components/ui/button/index.js';
 	import { viewMode } from '$lib/stores/viewMode.svelte.js';
 	import { editSession } from '$lib/stores/editSession.svelte.js';
 	import { commands } from '$lib/commands/registry.svelte.js';
@@ -91,14 +93,15 @@ editing lives in `EditableField` inside each `*Inspector.svelte`.
 		}
 	}
 
-	async function removeElement(): Promise<void> {
+	// VS Code webviews are iframes without `allow-modals`, so `window.confirm`
+	// is silently ignored (you see "Ignored call to 'confirm()'" in the
+	// console and the delete never happens). The AlertDialog below is a
+	// webview-internal portal — it works everywhere the extension runs.
+	let removeDialogOpen = $state(false);
+
+	async function performRemove(): Promise<void> {
 		if (!record) return;
-		const ok = confirm(
-			`Remove <${record.tagName}${record.name ? ` name="${record.name}"` : ''}> from XML?`
-		);
-		if (!ok) return;
 		await editSession.remove(record);
-		// Clear selection — the entity is gone.
 		void commands.run('selection.clear');
 		void sim;
 	}
@@ -123,10 +126,37 @@ editing lives in `EditableField` inside each `*Inspector.svelte`.
 				class="cursor-pointer rounded border-0 bg-transparent p-1 text-muted-foreground hover:text-destructive"
 				title="Remove this element from XML"
 				aria-label="Remove from XML"
-				onclick={removeElement}
+				onclick={() => (removeDialogOpen = true)}
 			>
 				<Trash2Icon class="h-3.5 w-3.5" />
 			</button>
+			<AlertDialog.Root bind:open={removeDialogOpen}>
+				<AlertDialog.Content size="sm">
+					<AlertDialog.Header>
+						<AlertDialog.Title>Remove element?</AlertDialog.Title>
+						<AlertDialog.Description>
+							This deletes
+							<code class="font-mono text-[12px]">
+								&lt;{record?.tagName}{record?.name ? ` name="${record.name}"` : ''}&gt;
+							</code>
+							from
+							<code class="font-mono text-[12px]">{record?.sourceFile}</code>.
+							Undo via the text editor's <kbd>Cmd/Ctrl+Z</kbd>.
+						</AlertDialog.Description>
+					</AlertDialog.Header>
+					<AlertDialog.Footer>
+						<AlertDialog.Cancel class={buttonVariants({ variant: 'outline', size: 'sm' })}>
+							Cancel
+						</AlertDialog.Cancel>
+						<AlertDialog.Action
+							class={buttonVariants({ variant: 'destructive', size: 'sm' })}
+							onclick={() => void performRemove()}
+						>
+							Remove
+						</AlertDialog.Action>
+					</AlertDialog.Footer>
+				</AlertDialog.Content>
+			</AlertDialog.Root>
 		{:else}
 			<span class="flex-1 truncate font-semibold">{displayName}</span>
 		{/if}

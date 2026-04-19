@@ -261,6 +261,11 @@ interface LoadResult {
  * `type='plane'` in single quotes, or whitespace between attr name and `=`)
  * are rare in practice; worst case the user's floor coexists with ours and
  * MuJoCo discards the redundant plane-plane contact.
+ *
+ * `pos="0 0 -1"` is deliberate: it matches `DefaultFloor.svelte`'s visual
+ * mesh (also at z=-1, offset so it loses any z-fight with user planes at
+ * z=0). Matching heights means the visual ground and collision ground line
+ * up — dropped bodies land exactly where the user sees the floor.
  */
 function maybeInjectDefaultFloor(text: string): string {
 	// Any geom declaring the `plane` type — existing MJCF floor.
@@ -273,7 +278,7 @@ function maybeInjectDefaultFloor(text: string): string {
 
 	const insertAt = worldOpen.index + worldOpen[0].length;
 	const plane =
-		'\n    <geom name="__mjv_default_floor" type="plane" size="0 0 0.125" rgba="0 0 0 0" contype="15" conaffinity="15"/>';
+		'\n    <geom name="__mjv_default_floor" type="plane" pos="0 0 -1" size="0 0 0.125" rgba="0 0 0 0" contype="15" conaffinity="15"/>';
 	return text.slice(0, insertAt) + plane + text.slice(insertAt);
 }
 

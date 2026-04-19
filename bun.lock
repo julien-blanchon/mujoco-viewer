@@ -11,7 +11,7 @@
     },
     "apps/vscode-extension": {
       "name": "mujoco-viewer",
-      "version": "0.1.5",
+      "version": "0.1.6",
       "dependencies": {
         "@mujoco-viewer/protocol": "workspace:*",
         "@mujoco-viewer/viewer-ui": "workspace:*",
