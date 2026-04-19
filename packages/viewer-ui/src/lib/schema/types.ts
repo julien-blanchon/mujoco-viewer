@@ -41,13 +41,32 @@ export interface AttrSchema {
 	/** Literal default from the XSD (raw string), or `null` if not specified. */
 	default: string | null;
 	type: AttrType;
+	/**
+	 * Documentation text pulled from the attribute's `xs:annotation` /
+	 * `xs:documentation` in the XSD (trimmed, whitespace-normalised). Null when
+	 * the schema doesn't carry docs for this attribute — hand-curated `help`
+	 * from uiMeta takes precedence in the UI.
+	 */
+	documentation: string | null;
 }
 
 export interface ElementSchema {
-	/** XSD complex type name this element resolves to (e.g. `bodyGeomType`). */
+	/**
+	 * XSD type name this element resolves to when the schema uses named complex
+	 * types (e.g. `body_type`). For elements declared inline (most of the
+	 * modern XSD), this is a synthetic path key like `mujoco/asset/mesh` — not
+	 * meaningful to consumers, but useful for debugging.
+	 */
 	typeName: string;
-	/** All attributes on the type, after expanding extension chains. */
+	/** All attributes on the element, after expanding extension chains. */
 	attrs: Map<string, AttrSchema>;
+	/**
+	 * Documentation text from the element's own `xs:annotation`, if any.
+	 * Typically absent on elements in the autogen MJCF schema (docs live on
+	 * attributes), but surfaced when present so Inspector headers can hint at
+	 * what the element models.
+	 */
+	documentation: string | null;
 }
 
 export interface MujocoSchema {

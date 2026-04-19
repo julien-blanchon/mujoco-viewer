@@ -229,7 +229,7 @@ swatches, etc. They continue to render above this list in the Inspector.
 									</Tooltip.Trigger>
 									<Tooltip.Content
 										side="left"
-										class="flex max-w-xs flex-col items-start gap-1 px-3 py-2"
+										class="flex max-w-sm flex-col items-start gap-1 px-3 py-2"
 									>
 										<span class="font-mono text-xs font-semibold">{row.attr}</span>
 										{#if row.data.default}
@@ -242,8 +242,15 @@ swatches, etc. They continue to render above this list in the Inspector.
 												Required
 											</span>
 										{/if}
-										{#if row.meta.help}
-											<span class="text-[11px] opacity-90">{row.meta.help}</span>
+										{#if row.meta.help || row.data.documentation}
+											<!-- MJCF docs can run long (e.g. geom.type covers every
+											     primitive), so cap the body and let it scroll inside
+											     the tooltip instead of overflowing the viewport. -->
+											<div
+												class="max-h-64 w-full overflow-y-auto whitespace-pre-line text-[11px] opacity-90"
+											>
+												{row.meta.help ?? row.data.documentation}
+											</div>
 										{/if}
 										{#if rowAttr}
 											<span class="text-[10px] opacity-70">
@@ -292,15 +299,19 @@ swatches, etc. They continue to render above this list in the Inspector.
 									</Tooltip.Trigger>
 									<Tooltip.Content
 										side="left"
-										class="flex max-w-xs flex-col items-start gap-1 px-3 py-2"
+										class="flex max-w-sm flex-col items-start gap-1 px-3 py-2"
 									>
 										<span class="font-mono text-xs font-semibold">{row.mutex.label}</span>
 										<span class="text-[11px] opacity-90">
 											One of: {row.mutex.members.join(', ')}. Switching replaces the
 											previous representation — MuJoCo allows only one at a time.
 										</span>
-										{#if row.meta.help}
-											<span class="text-[11px] opacity-80">{row.meta.help}</span>
+										{#if row.meta.help || row.data.documentation}
+											<div
+												class="max-h-64 w-full overflow-y-auto whitespace-pre-line text-[11px] opacity-80"
+											>
+												{row.meta.help ?? row.data.documentation}
+											</div>
 										{/if}
 									</Tooltip.Content>
 								</Tooltip.Root>

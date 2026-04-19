@@ -3,84 +3,29 @@
  * SPDX-License-Identifier: Apache-2.0
  *
  * One-shot XSD parser that walks `mujoco.xsd` and produces a `MujocoSchema`
- * used by the inspector to pick the right input widget for each attribute.
+ * used by the inspector to pick the right input widget for each attribute
+ * AND to surface per-attribute documentation in tooltips.
  *
  * The parser is narrow on purpose — it doesn't implement the XSD spec. It
- * handles the small subset MuJoCo's schema actually uses:
- *   - `xs:simpleType` with `xs:restriction` + `xs:enumeration` → enum
- *   - `xs:simpleType` with named patterns we recognise ("threeRealsType", ...)
- *   - `xs:complexType` with `xs:attribute` + `xs:extension base=...`
- *   - `xs:element name="..." type="..."` declarations nested in complex types
+ * handles the subset the autogen MJCF schema actually uses:
+ *   - `xs:simpleType` with an enum restriction → enum (or autoBool if
+ *     values === {true,false,auto})
+ *   - `xs:simpleType` with an `xs:list` restriction + `xs:length` /
+ *     `xs:maxLength` → fixed / flexible numeric vector
+ *   - `xs:simpleType` with a pattern restriction → pattern-constrained string
+ *   - Named `xs:complexType` (body_type, default_type, frame_type,
+ *     replicate_type) for reusable tags like `<body>`, `<default>`, `<frame>`
+ *   - Inline `xs:complexType` nested under every other `<xs:element name="…">`
+ *   - `xs:annotation` / `xs:documentation` on attributes and elements →
+ *     `AttrSchema.documentation` / `ElementSchema.documentation`
  *
- * Shapes the XSD uses but we don't care about (xs:choice, xs:sequence, xs:group,
- * imports, etc.) are walked past without interpretation.
+ * Since `<geom>` (and friends) appear in multiple contexts (inside
+ * `<default>`, inside `<body>`, inside `<asset>`, …), we walk the full
+ * element tree and disambiguate by **ancestor path**: the canonical
+ * definition is the one whose path does NOT traverse a `<default>` ancestor.
  */
 
 import type { AttrSchema, AttrType, ElementSchema, MujocoSchema } from './types.js';
-
-const XS = 'http://www.w3.org/2001/XMLSchema';
-
-/**
- * Named pattern-based simple types keyed by their name in the XSD. MuJoCo's
- * schema uses a very consistent naming convention (`twoRealsType`,
- * `threeIntsType`, `upToFourRealsType`, `infRealsType`), so we map by name
- * instead of re-implementing the XSD pattern interpreter.
- */
-const NAMED_NUMERIC_TYPES: Record<string, AttrType> = {
-	twoIntsType: { kind: 'ints', count: 2 },
-	upToTwoIntsType: { kind: 'ints', count: 2, flexible: true },
-	threeIntsType: { kind: 'ints', count: 3 },
-	upToThreeIntsType: { kind: 'ints', count: 3, flexible: true },
-	infIntsType: { kind: 'ints', count: 0, unbounded: true },
-	twoRealsType: { kind: 'reals', count: 2 },
-	upToTwoRealsType: { kind: 'reals', count: 2, flexible: true },
-	threeRealsType: { kind: 'reals', count: 3 },
-	upToThreeRealsType: { kind: 'reals', count: 3, flexible: true },
-	fourRealsType: { kind: 'reals', count: 4 },
-	upToFourRealsType: { kind: 'reals', count: 4, flexible: true },
-	fiveRealsType: { kind: 'reals', count: 5 },
-	upToFiveRealsType: { kind: 'reals', count: 5, flexible: true },
-	sixRealsType: { kind: 'reals', count: 6 },
-	upToSixRealsType: { kind: 'reals', count: 6, flexible: true },
-	sevenRealsType: { kind: 'reals', count: 7 },
-	upToSevenRealsType: { kind: 'reals', count: 7, flexible: true },
-	tenRealsType: { kind: 'reals', count: 10 },
-	upToTenRealsType: { kind: 'reals', count: 10, flexible: true },
-	infRealsType: { kind: 'reals', count: 0, unbounded: true },
-	solimpType: { kind: 'realsVariants', variants: [3, 5] },
-	eulerseqType: { kind: 'string', pattern: '[x-zX-Z]{3}' },
-	autoBoolType: { kind: 'autoBool' }
-};
-
-/** Built-in XSD primitive types we understand. */
-const BUILTIN_TYPES: Record<string, AttrType> = {
-	'xs:int': { kind: 'int' },
-	'xs:integer': { kind: 'int' },
-	'xs:unsignedInt': { kind: 'int' },
-	'xs:short': { kind: 'int' },
-	'xs:double': { kind: 'float' },
-	'xs:float': { kind: 'float' },
-	'xs:decimal': { kind: 'float' },
-	'xs:boolean': { kind: 'bool' },
-	'xs:string': { kind: 'string' },
-	'xs:anyURI': { kind: 'string' },
-	'xs:normalizedString': { kind: 'string' },
-	'xs:token': { kind: 'string' }
-};
-
-interface RawAttrDecl {
-	name: string;
-	typeRef: string;
-	required: boolean;
-	default: string | null;
-}
-
-interface RawComplexType {
-	attrs: RawAttrDecl[];
-	extendsBase: string | null;
-	/** Inline child elements discovered inside this complex type. */
-	childElements: Array<{ name: string; typeRef: string | null; inlineType?: RawComplexType }>;
-}
 
 /** Extract the local name of an XML element (strip namespace prefix). */
 function localName(node: Element): string {
@@ -109,158 +54,326 @@ function xsDescendant(parent: Element, local: string): Element | null {
 	return null;
 }
 
+/**
+ * Extract the text of the first `xs:documentation` child under this node's
+ * `xs:annotation`, normalised: leading/trailing whitespace stripped, internal
+ * runs of whitespace collapsed to single spaces, and per-paragraph line
+ * breaks preserved. Returns null when no annotation is present.
+ *
+ * MJCF docs are RST source (the schema is autogenerated from reference
+ * documentation). We don't try to render RST here — the inspector shows
+ * plain text. We do strip the worst RST artefacts (backticked `text <url>`__
+ * links, asterisks) so the tooltip reads as prose, not markup.
+ */
+function extractDocumentation(node: Element): string | null {
+	const annotation = xsChildren(node, 'annotation')[0];
+	if (!annotation) return null;
+	const doc = xsChildren(annotation, 'documentation')[0];
+	if (!doc) return null;
+	const raw = (doc.textContent ?? '').trim();
+	if (!raw) return null;
+	return cleanDoc(raw);
+}
+
+/** Strip RST link syntax and collapse whitespace so tooltips read as prose. */
+function cleanDoc(raw: string): string {
+	return (
+		raw
+			// ``code`` → code
+			.replace(/``([^`]+)``/g, '$1')
+			// `text <url>`__ → text
+			.replace(/`([^`<]+?)\s*<[^>]+>`__/g, '$1')
+			// `text`__ or `text`_ → text
+			.replace(/`([^`]+)`__/g, '$1')
+			.replace(/`([^`]+)`_/g, '$1')
+			// RST :ref:`text` / :doc:`text` → text
+			.replace(/:[a-z]+:`([^`]+)`/gi, '$1')
+			// **bold** → bold (keep readable weight implied)
+			.replace(/\*\*([^*]+)\*\*/g, '$1')
+			// *italic* → italic
+			.replace(/\*([^*]+)\*/g, '$1')
+			// Convert RST grid tables / continuation indents to plain line breaks;
+			// collapse more than two consecutive newlines.
+			.replace(/\r\n/g, '\n')
+			.replace(/\n{3,}/g, '\n\n')
+			// Collapse runs of spaces/tabs inside a single line (but preserve
+			// newlines between paragraphs).
+			.split('\n')
+			.map((line) => line.replace(/[ \t]+/g, ' ').trim())
+			.join('\n')
+			.replace(/\n{3,}/g, '\n\n')
+			.trim()
+	);
+}
+
+// ----------------------------------------------------------------------------
+// simpleType classification
+// ----------------------------------------------------------------------------
+
+/** Built-in XSD primitive types we understand. */
+const BUILTIN_TYPES: Record<string, AttrType> = {
+	'xs:int': { kind: 'int' },
+	'xs:integer': { kind: 'int' },
+	'xs:unsignedInt': { kind: 'int' },
+	'xs:short': { kind: 'int' },
+	'xs:double': { kind: 'float' },
+	'xs:float': { kind: 'float' },
+	'xs:decimal': { kind: 'float' },
+	'xs:boolean': { kind: 'bool' },
+	'xs:string': { kind: 'string' },
+	'xs:anyURI': { kind: 'string' },
+	'xs:normalizedString': { kind: 'string' },
+	'xs:token': { kind: 'string' }
+};
+
+/** "true"/"false"/"auto" enums get rendered via the existing BoolField. */
+function isAutoBoolSet(values: readonly string[]): boolean {
+	if (values.length !== 3) return false;
+	const set = new Set(values);
+	return set.has('true') && set.has('false') && set.has('auto');
+}
+
+/**
+ * Classify a user-defined `<xs:simpleType name="…">` body. Works on the
+ * autogen MJCF schema shapes (list / uptolist / vec / enum) without relying
+ * on name conventions — we look at the restriction's structure instead.
+ */
+function classifySimpleType(st: Element): AttrType {
+	const restriction = xsDescendant(st, 'restriction');
+	if (!restriction) return { kind: 'string' };
+
+	// Enum? (may be deep inside a nested restriction, but usually direct)
+	const enumerations = xsChildren(restriction, 'enumeration');
+	if (enumerations.length > 0) {
+		const values = enumerations
+			.map((e) => e.getAttribute('value') ?? '')
+			.filter((v) => v !== '');
+		if (isAutoBoolSet(values)) return { kind: 'autoBool' };
+		return { kind: 'enum', values };
+	}
+
+	// List? (both the fixed `list_*_N` and `uptolist_*_N` / `vec_*` shapes nest
+	// an <xs:simpleType><xs:list itemType="…"/></xs:simpleType> under the
+	// restriction. xs:length / xs:maxLength siblings sit next to that inner
+	// simpleType, also under restriction.)
+	const list = xsDescendant(restriction, 'list');
+	if (list) {
+		const itemType = list.getAttribute('itemType') ?? 'xs:double';
+		const isInt =
+			itemType === 'xs:int' ||
+			itemType === 'xs:integer' ||
+			itemType === 'xs:unsignedInt' ||
+			itemType === 'xs:short';
+		const lengthEl = xsChildren(restriction, 'length')[0];
+		const maxLengthEl = xsChildren(restriction, 'maxLength')[0];
+		if (lengthEl) {
+			const n = parseInt(lengthEl.getAttribute('value') ?? '0', 10) || 0;
+			return isInt ? { kind: 'ints', count: n } : { kind: 'reals', count: n };
+		}
+		if (maxLengthEl) {
+			const n = parseInt(maxLengthEl.getAttribute('value') ?? '0', 10) || 0;
+			return isInt
+				? { kind: 'ints', count: n, flexible: true }
+				: { kind: 'reals', count: n, flexible: true };
+		}
+		// Unbounded vec_*: keep count=0 and unbounded=true so the UI can render
+		// a flexible vector field. The caller treats unbounded as effectively
+		// open-ended; VectorField today treats count=0 as "at least 1".
+		return isInt
+			? { kind: 'ints', count: 0, unbounded: true }
+			: { kind: 'reals', count: 0, unbounded: true };
+	}
+
+	// Pattern-constrained string.
+	const patternEl = xsChildren(restriction, 'pattern')[0];
+	if (patternEl) {
+		const pattern = patternEl.getAttribute('value');
+		return pattern ? { kind: 'string', pattern } : { kind: 'string' };
+	}
+
+	// Length-bounded string, numeric min/max, etc. — we don't surface these,
+	// treat as plain string.
+	return { kind: 'string' };
+}
+
+function classifyTypeRef(
+	typeRef: string,
+	simpleTypes: Map<string, AttrType>
+): AttrType {
+	if (BUILTIN_TYPES[typeRef]) return BUILTIN_TYPES[typeRef];
+	const user = simpleTypes.get(typeRef);
+	if (user) return user;
+	// Unknown — treat as free-form string.
+	return { kind: 'string' };
+}
+
+// ----------------------------------------------------------------------------
+// complexType + element traversal
+// ----------------------------------------------------------------------------
+
+interface RawAttrDecl {
+	name: string;
+	typeRef: string;
+	required: boolean;
+	default: string | null;
+	documentation: string | null;
+}
+
+interface RawComplexType {
+	attrs: RawAttrDecl[];
+	/** Child `<xs:element>` declarations (own Element nodes retained so we can
+	 *  recurse into them and extract their documentation). */
+	childElements: Element[];
+}
+
+/** Parse an `<xs:attribute>` declaration, capturing its documentation. */
 function parseAttribute(el: Element): RawAttrDecl {
 	return {
 		name: el.getAttribute('name') ?? '',
 		typeRef: el.getAttribute('type') ?? 'xs:string',
 		required: el.getAttribute('use') === 'required',
-		default: el.getAttribute('default')
+		default: el.getAttribute('default'),
+		documentation: extractDocumentation(el)
 	};
 }
 
+/**
+ * Parse an `<xs:complexType>` node: collect every `xs:attribute` anywhere
+ * inside it, and every direct or nested `xs:element` child. We don't descend
+ * into nested complex types (those belong to their owning child element and
+ * get walked separately when we enumerate children).
+ */
 function parseComplexType(el: Element): RawComplexType {
-	const out: RawComplexType = { attrs: [], extendsBase: null, childElements: [] };
+	const out: RawComplexType = { attrs: [], childElements: [] };
 
-	// Attributes may be direct children OR nested inside complexContent/extension.
-	const extension = xsDescendant(el, 'extension');
-	if (extension) out.extendsBase = extension.getAttribute('base');
-
-	// Walk the subtree to collect every xs:attribute — they can appear at any
-	// depth inside extension / sequence / choice / group.
 	const collectAttrs = (node: Element): void => {
 		for (let i = 0; i < node.children.length; i++) {
 			const c = node.children[i];
 			const n = localName(c);
 			if (n === 'attribute') out.attrs.push(parseAttribute(c));
-			else if (n === 'complexType') {
-				// Inline complex type for a nested element — don't descend
-				continue;
-			} else {
-				collectAttrs(c);
-			}
+			else if (n === 'element' || n === 'complexType') continue;
+			else collectAttrs(c);
 		}
 	};
 	collectAttrs(el);
 
-	// Discover child element declarations (xs:element), used to learn the
-	// type-name an outer tag references (e.g. `<body>` declares `<geom type="bodyGeomType"/>`
-	// inside its choice).
 	const collectElements = (node: Element): void => {
 		for (let i = 0; i < node.children.length; i++) {
 			const c = node.children[i];
 			const n = localName(c);
 			if (n === 'element') {
-				const name = c.getAttribute('name');
-				const typeRef = c.getAttribute('type');
-				if (name) {
-					const inline = xsChildren(c, 'complexType')[0];
-					out.childElements.push({
-						name,
-						typeRef: typeRef ?? null,
-						inlineType: inline ? parseComplexType(inline) : undefined
-					});
-				}
-			} else if (n === 'attribute' || n === 'complexType') {
-				continue;
-			} else {
-				collectElements(c);
-			}
+				if (c.getAttribute('name')) out.childElements.push(c);
+			} else if (n === 'attribute' || n === 'complexType') continue;
+			else collectElements(c);
 		}
 	};
 	collectElements(el);
+
 	return out;
+}
+
+/** A single `<xs:element name="X">` occurrence captured during the tree walk. */
+interface ElementOccurrence {
+	tag: string;
+	attrs: RawAttrDecl[];
+	documentation: string | null;
+	/** Ancestor tag names, ordered root → parent (not including the element itself). */
+	ancestorPath: readonly string[];
+	/**
+	 * If the element uses `type="X"` referencing a named complex type, we
+	 * record the named type here. Used by the recursion guard to avoid
+	 * infinite descent when body_type nests itself (`<body>` → `<body>` → …).
+	 */
+	namedTypeRef: string | null;
 }
 
 /**
- * Classify a type reference. For user-defined simple types we look up the
- * enum (if any) and fall back to the named-numeric map. For built-ins the
- * BUILTIN_TYPES table is authoritative.
+ * Walk the XSD tree starting at an `<xs:element>` node, collecting every
+ * descendant element occurrence. Handles both inline and named-type
+ * references. Recursion into a named type is skipped when the same named
+ * type is already on the stack (body_type → body_type is the common case).
  */
-function classifyTypeRef(
-	typeRef: string,
-	enums: Map<string, readonly string[]>
-): AttrType {
-	if (BUILTIN_TYPES[typeRef]) return BUILTIN_TYPES[typeRef];
-	if (NAMED_NUMERIC_TYPES[typeRef]) return NAMED_NUMERIC_TYPES[typeRef];
-	const enumValues = enums.get(typeRef);
-	if (enumValues) return { kind: 'enum', values: enumValues };
-	// Unknown type ref — treat as free-form string. This happens for
-	// string-valued named types (e.g. `urlType`) where we don't benefit from
-	// special input.
-	return { kind: 'string' };
+function walkElementTree(
+	elementEl: Element,
+	ancestorPath: readonly string[],
+	namedTypeStack: ReadonlySet<string>,
+	complexTypes: ReadonlyMap<string, RawComplexType>,
+	visit: (occ: ElementOccurrence) => void
+): void {
+	const name = elementEl.getAttribute('name');
+	if (!name) return;
+
+	const typeRef = elementEl.getAttribute('type');
+	const inlineComplex = xsChildren(elementEl, 'complexType')[0];
+
+	let ct: RawComplexType | null = null;
+	if (inlineComplex) {
+		ct = parseComplexType(inlineComplex);
+	} else if (typeRef && complexTypes.has(typeRef)) {
+		ct = complexTypes.get(typeRef)!;
+	}
+
+	const documentation = extractDocumentation(elementEl);
+
+	visit({
+		tag: name,
+		attrs: ct?.attrs ?? [],
+		documentation,
+		ancestorPath,
+		namedTypeRef: typeRef && complexTypes.has(typeRef) ? typeRef : null
+	});
+
+	if (!ct || ct.childElements.length === 0) return;
+
+	// Avoid recursing into a named type already on the stack: e.g. body_type
+	// contains a child `<body type="body_type">`, which would otherwise walk
+	// forever.
+	if (typeRef && namedTypeStack.has(typeRef)) return;
+	const nextStack = typeRef ? new Set([...namedTypeStack, typeRef]) : namedTypeStack;
+	const nextPath = [...ancestorPath, name];
+	for (const child of ct.childElements) {
+		walkElementTree(child, nextPath, nextStack, complexTypes, visit);
+	}
 }
 
-function classifyAttr(
-	raw: RawAttrDecl,
-	enums: Map<string, readonly string[]>
-): AttrSchema {
-	return {
-		name: raw.name,
-		required: raw.required,
-		default: raw.default,
-		type: classifyTypeRef(raw.typeRef, enums)
-	};
-}
+// ----------------------------------------------------------------------------
+// Disambiguation
+// ----------------------------------------------------------------------------
 
 /**
- * Build a table mapping element tag names to the complex type that represents
- * their *instance* context (e.g. `<geom>` inside a `<body>`, not inside a
- * `<default>` block). For tags with only one appearance we pick that one;
- * for tags that appear in multiple contexts we prefer the non-default version
- * since instance values are what the inspector edits.
+ * A tag can have multiple occurrences in the XSD tree (e.g. `<geom>` inside
+ * `<default>`, inside `<body>`, inside `<asset>/<skin>`). Pick the canonical
+ * one to show in the Inspector — the version users actually edit on a body.
+ *
+ * Rules, in order:
+ *   1. Prefer occurrences NOT nested inside a `<default>` ancestor (those are
+ *      "class template" definitions with fewer attrs).
+ *   2. Prefer occurrences nested inside `<worldbody>` or `<body>` (the
+ *      instance context, where the editor's selection actually lives).
+ *   3. Prefer occurrences nested inside `<asset>`.
+ *   4. Otherwise, take the first occurrence encountered.
  */
-function buildElementToType(
-	complexTypes: Map<string, RawComplexType>
-): Map<string, string> {
-	const candidates: Map<string, string[]> = new Map();
-	for (const [typeName, ct] of complexTypes) {
-		for (const child of ct.childElements) {
-			if (!child.typeRef) continue;
-			const list = candidates.get(child.name) ?? [];
-			list.push(child.typeRef);
-			candidates.set(child.name, list);
-		}
-	}
-	const out: Map<string, string> = new Map();
-	for (const [tag, refs] of candidates) {
-		// Preference rules:
-		//  1. Types under `body*` (instance context for body-children)
-		//  2. Types under `asset*` (asset instances)
-		//  3. Anything else (first seen)
-		const preferred =
-			refs.find((r) => r.startsWith('body') && !r.startsWith('bodyComposite')) ??
-			refs.find((r) => r.startsWith('asset')) ??
-			refs.find((r) => r.startsWith('actuator')) ??
-			refs.find((r) => r.startsWith('sensor')) ??
-			refs.find((r) => r.startsWith('equality')) ??
-			refs.find((r) => r.startsWith('tendon')) ??
-			refs.find((r) => !r.startsWith('default')) ??
-			refs[0];
-		out.set(tag, preferred);
-	}
-	return out;
+function pickCanonical(occurrences: readonly ElementOccurrence[]): ElementOccurrence {
+	if (occurrences.length === 1) return occurrences[0];
+
+	const inDefault = (o: ElementOccurrence): boolean => o.ancestorPath.includes('default');
+	const inBody = (o: ElementOccurrence): boolean =>
+		o.ancestorPath.includes('body') || o.ancestorPath.includes('worldbody');
+	const inAsset = (o: ElementOccurrence): boolean => o.ancestorPath.includes('asset');
+
+	const notDefault = occurrences.filter((o) => !inDefault(o));
+	const pool = notDefault.length > 0 ? notDefault : occurrences;
+
+	return (
+		pool.find(inBody) ??
+		pool.find(inAsset) ??
+		pool[0]
+	);
 }
 
-function resolveElement(
-	typeName: string,
-	complexTypes: Map<string, RawComplexType>,
-	enums: Map<string, readonly string[]>,
-	visited = new Set<string>()
-): Map<string, AttrSchema> {
-	if (visited.has(typeName)) return new Map();
-	visited.add(typeName);
-	const ct = complexTypes.get(typeName);
-	if (!ct) return new Map();
-	// Walk the extension chain first so derived attrs can override base defaults.
-	const out = ct.extendsBase
-		? resolveElement(ct.extendsBase, complexTypes, enums, visited)
-		: new Map<string, AttrSchema>();
-	for (const raw of ct.attrs) {
-		if (!raw.name) continue;
-		out.set(raw.name, classifyAttr(raw, enums));
-	}
-	return out;
-}
+// ----------------------------------------------------------------------------
+// Top-level entry
+// ----------------------------------------------------------------------------
 
 export function parseXsd(xsdText: string): MujocoSchema {
 	const doc = new DOMParser().parseFromString(xsdText, 'application/xml');
@@ -269,70 +382,87 @@ export function parseXsd(xsdText: string): MujocoSchema {
 	}
 	const root = doc.documentElement;
 
-	// Pass 1: collect simpleType enums
-	const enums: Map<string, readonly string[]> = new Map();
+	// Pass 1: classify every user-defined xs:simpleType.
+	const simpleTypes: Map<string, AttrType> = new Map();
 	for (const st of xsChildren(root, 'simpleType')) {
 		const name = st.getAttribute('name');
 		if (!name) continue;
-		const restriction = xsDescendant(st, 'restriction');
-		if (!restriction) continue;
-		const enumerations = xsChildren(restriction, 'enumeration');
-		if (enumerations.length === 0) continue;
-		enums.set(
-			name,
-			enumerations.map((e) => e.getAttribute('value') ?? '').filter((v) => v !== '')
-		);
+		simpleTypes.set(name, classifySimpleType(st));
 	}
 
-	// Pass 2: collect complexTypes
+	// Pass 2: parse named complex types (autogen schema has 4:
+	// body_type / default_type / frame_type / replicate_type).
 	const complexTypes: Map<string, RawComplexType> = new Map();
 	for (const ct of xsChildren(root, 'complexType')) {
 		const name = ct.getAttribute('name');
 		if (!name) continue;
 		complexTypes.set(name, parseComplexType(ct));
 	}
-	// Also collect inline complex types from top-level xs:element declarations
-	// (`<xs:element name="mujoco"><xs:complexType>...`): walk any named element
-	// at the root level.
+
+	// Pass 3: walk the full element tree, starting from every top-level
+	// `<xs:element>` (there's really only one — `<mujoco>` — but belt & braces)
+	// AND every named complexType (which the walker would otherwise only
+	// reach through their root references). Walking the named types directly
+	// captures their children (e.g. body_type's child `<geom>`) with a sensible
+	// ancestor path rooted at the type's referencing element names.
+	const occurrences: Map<string, ElementOccurrence[]> = new Map();
+	const record = (occ: ElementOccurrence): void => {
+		const list = occurrences.get(occ.tag) ?? [];
+		list.push(occ);
+		occurrences.set(occ.tag, list);
+	};
+
 	for (const el of xsChildren(root, 'element')) {
-		const name = el.getAttribute('name');
-		if (!name) continue;
-		const inline = xsChildren(el, 'complexType')[0];
-		if (inline) complexTypes.set(name, parseComplexType(inline));
+		walkElementTree(el, [], new Set(), complexTypes, record);
 	}
 
-	// Pass 3: build tag → type mapping
-	const elementToType = buildElementToType(complexTypes);
-	// Root `<mujoco>` element is declared at the top level as an xs:element.
-	if (!elementToType.has('mujoco') && complexTypes.has('mujoco')) {
-		elementToType.set('mujoco', 'mujoco');
-	}
-
-	// Materialize an ElementSchema for every known tag. Do it lazily to keep
-	// construction cheap, but memoize.
+	// Pass 4: assemble ElementSchemas for every tag discovered.
 	const elementCache = new Map<string, ElementSchema | null>();
 
-	function getElement(tagName: string): ElementSchema | null {
-		if (elementCache.has(tagName)) return elementCache.get(tagName)!;
-		const typeName = elementToType.get(tagName);
-		if (!typeName) {
-			elementCache.set(tagName, null);
+	function materialize(tag: string): ElementSchema | null {
+		if (elementCache.has(tag)) return elementCache.get(tag)!;
+		const list = occurrences.get(tag);
+		if (!list || list.length === 0) {
+			elementCache.set(tag, null);
 			return null;
 		}
-		const attrs = resolveElement(typeName, complexTypes, enums);
-		const schema: ElementSchema = { typeName, attrs };
-		elementCache.set(tagName, schema);
+		const canonical = pickCanonical(list);
+		const attrs = new Map<string, AttrSchema>();
+		for (const raw of canonical.attrs) {
+			if (!raw.name) continue;
+			attrs.set(raw.name, {
+				name: raw.name,
+				required: raw.required,
+				default: raw.default,
+				type: classifyTypeRef(raw.typeRef, simpleTypes),
+				documentation: raw.documentation
+			});
+		}
+		// Synthetic typeName for debugging: use the named type if one was
+		// referenced, otherwise join the ancestor path.
+		const typeName =
+			canonical.namedTypeRef ??
+			(canonical.ancestorPath.length > 0
+				? `${canonical.ancestorPath.join('/')}/${canonical.tag}`
+				: canonical.tag);
+		const schema: ElementSchema = {
+			typeName,
+			attrs,
+			documentation: canonical.documentation
+		};
+		elementCache.set(tag, schema);
 		return schema;
 	}
 
 	return {
-		getElement,
+		getElement(tagName: string): ElementSchema | null {
+			return materialize(tagName);
+		},
 		getAttr(tagName: string, attrName: string): AttrSchema | null {
-			const el = getElement(tagName);
-			return el?.attrs.get(attrName) ?? null;
+			return materialize(tagName)?.attrs.get(attrName) ?? null;
 		},
 		allTags(): string[] {
-			return Array.from(elementToType.keys()).sort();
+			return Array.from(occurrences.keys()).sort();
 		}
 	};
 }
