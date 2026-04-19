@@ -392,6 +392,51 @@
       <xs:enumeration value="targetbodycom" />
     </xs:restriction>
   </xs:simpleType>
+  <xs:simpleType name="cameraProjectionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="perspective" />
+      <xs:enumeration value="orthographic" />
+    </xs:restriction>
+  </xs:simpleType>
+  <!-- camera/output: space-separated list of rgb|depth|distance|normal|segmentation -->
+  <xs:simpleType name="cameraOutputType">
+    <xs:restriction base="xs:string">
+      <xs:pattern
+        value="\s*(rgb|depth|distance|normal|segmentation)(\s+(rgb|depth|distance|normal|segmentation))*\s*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <!-- rangefinder/data: space-separated list of dist|dir|origin|point|normal|depth -->
+  <xs:simpleType name="rangefinderDataType">
+    <xs:restriction base="xs:string">
+      <xs:pattern
+        value="\s*(dist|dir|origin|point|normal|depth)(\s+(dist|dir|origin|point|normal|depth))*\s*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <!-- sensor/actuator: interpolation mode for history buffers -->
+  <xs:simpleType name="sensorInterpType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="zoh" />
+      <xs:enumeration value="linear" />
+      <xs:enumeration value="cubic" />
+    </xs:restriction>
+  </xs:simpleType>
+  <!-- actuator/dcmotor input mode -->
+  <xs:simpleType name="dcmotorInputType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="voltage" />
+      <xs:enumeration value="position" />
+      <xs:enumeration value="velocity" />
+    </xs:restriction>
+  </xs:simpleType>
+  <!-- flexcomp edge/equality: false|true|vert|strain -->
+  <xs:simpleType name="flexcompEdgeEqualityType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="false" />
+      <xs:enumeration value="true" />
+      <xs:enumeration value="vert" />
+      <xs:enumeration value="strain" />
+    </xs:restriction>
+  </xs:simpleType>
   <xs:simpleType name="bodyCompositetypeType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="particle" />
@@ -425,6 +470,7 @@
       <xs:enumeration value="filter" />
       <xs:enumeration value="filterexact" />
       <xs:enumeration value="muscle" />
+      <xs:enumeration value="dcmotor" />
       <xs:enumeration value="user" />
     </xs:restriction>
   </xs:simpleType>
@@ -433,6 +479,7 @@
       <xs:enumeration value="fixed" />
       <xs:enumeration value="affine" />
       <xs:enumeration value="muscle" />
+      <xs:enumeration value="dcmotor" />
       <xs:enumeration value="user" />
     </xs:restriction>
   </xs:simpleType>
@@ -441,6 +488,7 @@
       <xs:enumeration value="none" />
       <xs:enumeration value="affine" />
       <xs:enumeration value="muscle" />
+      <xs:enumeration value="dcmotor" />
       <xs:enumeration value="user" />
     </xs:restriction>
   </xs:simpleType>
@@ -774,14 +822,15 @@
     <xs:attribute name="solreflimit" type="twoRealsType" default="0.02 1" />
     <xs:attribute name="solimpfriction" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
     <xs:attribute name="solreffriction" type="twoRealsType" default="0.02 1" />
-    <xs:attribute name="stiffness" type="xs:double" default="0" />
+    <!-- stiffness / damping widened to 3-component polynomial (a, b, c) in 3.7.0 -->
+    <xs:attribute name="stiffness" type="upToThreeRealsType" default="0 0 0" />
     <xs:attribute name="range" type="twoRealsType" default="0 0" />
     <xs:attribute name="actuatorfrcrange" type="twoRealsType" />
     <xs:attribute name="margin" type="xs:double" default="0" />
     <xs:attribute name="ref" type="xs:double" default="0" />
     <xs:attribute name="springref" type="xs:double" default="0" />
     <xs:attribute name="armature" type="xs:double" default="0" />
-    <xs:attribute name="damping" type="xs:double" default="0" />
+    <xs:attribute name="damping" type="upToThreeRealsType" default="0 0 0" />
     <xs:attribute name="frictionloss" type="xs:double" default="0" />
     <xs:attribute name="user" type="infRealsType" />
     <xs:attribute name="actuatorgravcomp" type="xs:boolean" />
@@ -840,6 +889,8 @@
   <xs:complexType name="defaultCameraType">
     <xs:attribute name="mode" type="cameramodeType" default="fixed" />
     <xs:attribute name="target" type="xs:string" use="optional" />
+    <xs:attribute name="projection" type="cameraProjectionType" default="perspective" />
+    <xs:attribute name="output" type="cameraOutputType" default="rgb" />
     <xs:attribute name="fovy" type="xs:double" default="45" />
     <xs:attribute name="ipd" type="xs:double" default="0.068" />
     <xs:attribute name="pos" type="threeRealsType" default="0 0 0" />
@@ -848,7 +899,7 @@
     <xs:attribute name="euler" type="threeRealsType" use="optional" />
     <xs:attribute name="xyaxes" type="sixRealsType" use="optional" />
     <xs:attribute name="zaxis" type="threeRealsType" use="optional" />
-    <xs:attribute name="resolution" type="twoIntsType" />
+    <xs:attribute name="resolution" type="twoIntsType" default="1 1" />
     <xs:attribute name="focal" type="twoRealsType" />
     <xs:attribute name="focalpixel" type="twoRealsType" />
     <xs:attribute name="principal" type="twoRealsType" />
@@ -906,11 +957,14 @@
     <xs:attribute name="solreffriction" type="twoRealsType" default="0.02 1" />
     <xs:attribute name="margin" type="xs:double" default="0" />
     <xs:attribute name="frictionloss" type="xs:double" default="0" />
+    <xs:attribute name="springlength" type="twoRealsType" default="-1 -1" />
     <xs:attribute name="width" type="xs:double" default="0.003" />
     <xs:attribute name="material" type="xs:string" use="optional" />
     <xs:attribute name="rgba" type="fourRealsType" default="0.5 0.5 0.5 1" />
-    <xs:attribute name="stiffness" type="xs:double" default="0" />
-    <xs:attribute name="damping" type="xs:double" default="0" />
+    <!-- stiffness / damping widened to 3-component polynomial (a, b, c) in 3.7.0 -->
+    <xs:attribute name="stiffness" type="upToThreeRealsType" default="0 0 0" />
+    <xs:attribute name="damping" type="upToThreeRealsType" default="0 0 0" />
+    <xs:attribute name="armature" type="xs:double" default="0" />
     <xs:attribute name="user" type="infRealsType" />
   </xs:complexType>
 
@@ -931,6 +985,7 @@
     <xs:attribute name="gainprm" type="upToTenRealsType" default="1 0 0 0 0 0 0 0 0 0" />
     <xs:attribute name="biasprm" type="upToTenRealsType" default="0 0 0 0 0 0 0 0 0 0" />
     <xs:attribute name="actearly" type="xs:boolean" />
+    <xs:attributeGroup ref="actuatorHistoryAttrs" />
   </xs:complexType>
 
   <xs:complexType name="defaultMotorType">
@@ -946,6 +1001,7 @@
     <xs:attribute name="cranksite" type="xs:string" />
     <xs:attribute name="slidersite" type="xs:string" />
     <xs:attribute name="user" type="infRealsType" />
+    <xs:attributeGroup ref="actuatorHistoryAttrs" />
   </xs:complexType>
 
   <xs:complexType name="defaultPositionType">
@@ -982,6 +1038,7 @@
     <xs:attribute name="kv" type="xs:double" />
     <xs:attribute name="dampratio" type="xs:double" />
     <xs:attribute name="inheritrange" type="xs:double" />
+    <xs:attributeGroup ref="actuatorHistoryAttrs" />
   </xs:complexType>
 
   <xs:complexType name="defaultDamperType">
@@ -993,6 +1050,7 @@
     <xs:attribute name="cranklength" type="xs:double" default="0" />
     <xs:attribute name="user" type="infRealsType" />
     <xs:attribute name="kv" type="xs:double" />
+    <xs:attributeGroup ref="actuatorHistoryAttrs" />
   </xs:complexType>
 
   <xs:complexType name="defaultCylinderType">
@@ -1017,6 +1075,7 @@
     <xs:attribute name="cranklength" type="xs:double" default="0" />
     <xs:attribute name="user" type="infRealsType" />
     <xs:attribute name="timeconst" type="twoRealsType" default="0.01 0.04" />
+    <xs:attribute name="tausmooth" type="xs:double" default="0" />
     <xs:attribute name="range" type="twoRealsType" default="0.75 1.05" />
     <xs:attribute name="force" type="xs:double" default="-1" />
     <xs:attribute name="scale" type="xs:double" default="200" />
@@ -1025,6 +1084,7 @@
     <xs:attribute name="vmax" type="xs:double" default="1.5" />
     <xs:attribute name="fpmax" type="xs:double" default="1.3" />
     <xs:attribute name="fvmax" type="xs:double" default="1.2" />
+    <xs:attributeGroup ref="actuatorHistoryAttrs" />
   </xs:complexType>
 
   <xs:complexType name="defaultAdhesionType">
@@ -1034,6 +1094,31 @@
     <xs:attribute name="forcerange" type="twoRealsType" default="0 0" />
     <xs:attribute name="user" type="infRealsType" />
     <xs:attribute name="gain" type="xs:double" />
+    <xs:attribute name="delay" type="xs:double" default="0" />
+    <xs:attribute name="nsample" type="xs:int" default="0" />
+    <xs:attribute name="interp" type="sensorInterpType" default="zoh" />
+  </xs:complexType>
+
+  <!-- NEW in MuJoCo 3.7.0: DC motor actuator default class. -->
+  <xs:complexType name="defaultDcmotorType">
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="ctrllimited" type="autoBoolType" />
+    <xs:attribute name="ctrlrange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="lengthrange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="gear" type="upToSixRealsType" default="1 0 0 0 0 0" />
+    <xs:attribute name="cranklength" type="xs:double" default="0" />
+    <xs:attribute name="user" type="infRealsType" />
+    <xs:attribute name="resistance" type="xs:double" />
+    <xs:attribute name="motorconst" type="twoRealsType" />
+    <xs:attribute name="nominal" type="threeRealsType" />
+    <xs:attribute name="inductance" type="twoRealsType" default="0 0" />
+    <xs:attribute name="thermal" type="sixRealsType" default="0 0 0 0 0 0" />
+    <xs:attribute name="saturation" type="threeRealsType" default="0 0 0" />
+    <xs:attribute name="cogging" type="threeRealsType" default="0 0 0" />
+    <xs:attribute name="lugre" type="fiveRealsType" default="0 0 0 0 0" />
+    <xs:attribute name="input" type="dcmotorInputType" default="voltage" />
+    <xs:attribute name="controller" type="upToSixRealsType" default="0 0 0 0 0 0" />
+    <xs:attributeGroup ref="actuatorHistoryAttrs" />
   </xs:complexType>
 
   <!--#endregion
@@ -1197,20 +1282,21 @@
     <xs:attribute name="pos" type="threeRealsType" default="0 0 0" />
     <xs:attribute name="axis" type="threeRealsType" default="0 0 1" />
     <xs:attribute name="springdamper" type="twoRealsType" default="0 0" />
-    <xs:attribute name="limited" type="xs:boolean" default="false" />
+    <xs:attribute name="limited" type="autoBoolType" default="auto" />
     <xs:attribute name="actuatorfrclimited" type="autoBoolType" />
     <xs:attribute name="actuatorfrcrange" type="twoRealsType" />
     <xs:attribute name="solimplimit" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
     <xs:attribute name="solreflimit" type="twoRealsType" default="0.02 1" />
     <xs:attribute name="solimpfriction" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
     <xs:attribute name="solreffriction" type="twoRealsType" default="0.02 1" />
-    <xs:attribute name="stiffness" type="xs:double" default="0" />
+    <!-- stiffness / damping widened to 3-component polynomial (a, b, c) in 3.7.0 -->
+    <xs:attribute name="stiffness" type="upToThreeRealsType" default="0 0 0" />
     <xs:attribute name="range" type="twoRealsType" default="0 0" />
     <xs:attribute name="margin" type="xs:double" default="0" />
     <xs:attribute name="ref" type="xs:double" default="0" />
     <xs:attribute name="springref" type="xs:double" default="0" />
     <xs:attribute name="armature" type="xs:double" default="0" />
-    <xs:attribute name="damping" type="xs:double" default="0" />
+    <xs:attribute name="damping" type="upToThreeRealsType" default="0 0 0" />
     <xs:attribute name="frictionloss" type="xs:double" default="0" />
     <xs:attribute name="actuatorgravcomp" type="xs:boolean" />
     <xs:attribute name="user" type="infRealsType" />
@@ -1281,6 +1367,8 @@
     <xs:attribute name="class" type="xs:string" use="optional" />
     <xs:attribute name="mode" type="cameramodeType" default="fixed" />
     <xs:attribute name="target" type="xs:string" use="optional" />
+    <xs:attribute name="projection" type="cameraProjectionType" default="perspective" />
+    <xs:attribute name="output" type="cameraOutputType" default="rgb" />
     <xs:attribute name="fovy" type="xs:double" default="45" />
     <xs:attribute name="ipd" type="xs:double" default="0.068" />
     <xs:attribute name="pos" type="threeRealsType" default="0 0 0" />
@@ -1289,7 +1377,7 @@
     <xs:attribute name="euler" type="threeRealsType" use="optional" />
     <xs:attribute name="xyaxes" type="sixRealsType" use="optional" />
     <xs:attribute name="zaxis" type="threeRealsType" use="optional" />
-    <xs:attribute name="resolution" type="twoIntsType" />
+    <xs:attribute name="resolution" type="twoIntsType" default="1 1" />
     <xs:attribute name="focal" type="twoRealsType" />
     <xs:attribute name="focalpixel" type="twoRealsType" />
     <xs:attribute name="principal" type="twoRealsType" />
@@ -1444,7 +1532,8 @@
   </xs:complexType>
 
   <xs:complexType name="bodyFlexcompedgeType">
-    <xs:attribute name="equality" type="xs:boolean" />
+    <!-- equality accepts false|true|vert (3.5.0)|strain (3.6.0) -->
+    <xs:attribute name="equality" type="flexcompEdgeEqualityType" />
     <xs:attribute name="solref" type="twoRealsType" />
     <xs:attribute name="solimp" type="fiveRealsType" />
     <xs:attribute name="stiffness" type="xs:double" />
@@ -1472,7 +1561,7 @@
     <xs:attribute name="gap" type="xs:double" />
     <xs:attribute name="internal" type="xs:boolean" />
     <xs:attribute name="selfcollide" type="selfcollideType" />
-    <xs:attribute name="vertcollide" type="xs:boolean" />
+    <!-- vertcollide removed in MuJoCo 3.7.0 -->
     <xs:attribute name="activelayers" type="xs:int" />
     <xs:attribute name="passive" type="xs:boolean" />
   </xs:complexType>
@@ -1559,7 +1648,27 @@
     <xs:attribute name="active" type="xs:boolean" default="true" />
     <xs:attribute name="solimp" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
     <xs:attribute name="solref" type="twoRealsType" default="0.02 1" />
-    <xs:attribute name="flex" type="xs:string" />
+    <xs:attribute name="flex" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <!-- NEW in MuJoCo 3.5.0: flexvert equality (for 2D cloth-like flexes). -->
+  <xs:complexType name="equalityFlexvertType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="active" type="xs:boolean" default="true" />
+    <xs:attribute name="solimp" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solref" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="flex" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <!-- NEW in MuJoCo 3.6.0: flexstrain equality (for 3D trilinear/quadratic flexes). -->
+  <xs:complexType name="equalityFlexstrainType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="active" type="xs:boolean" default="true" />
+    <xs:attribute name="solimp" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
+    <xs:attribute name="solref" type="twoRealsType" default="0.02 1" />
+    <xs:attribute name="flex" type="xs:string" use="required" />
   </xs:complexType>
 
   <xs:complexType name="equalityTendonType">
@@ -1581,8 +1690,10 @@
     <xs:attribute name="name" type="xs:string" use="optional" />
     <xs:attribute name="class" type="xs:string" use="optional" />
     <xs:attribute name="group" type="xs:int" default="0" />
-    <xs:attribute name="limited" type="xs:boolean" default="false" />
+    <xs:attribute name="limited" type="autoBoolType" default="auto" />
+    <xs:attribute name="actuatorfrclimited" type="autoBoolType" />
     <xs:attribute name="range" type="twoRealsType" default="0 0" />
+    <xs:attribute name="actuatorfrcrange" type="twoRealsType" default="0 0" />
     <xs:attribute name="solimplimit" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
     <xs:attribute name="solreflimit" type="twoRealsType" default="0.02 1" />
     <xs:attribute name="solimpfriction" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
@@ -1592,10 +1703,11 @@
     <xs:attribute name="width" type="xs:double" default="0.003" />
     <xs:attribute name="material" type="xs:string" use="optional" />
     <xs:attribute name="rgba" type="fourRealsType" default="0.5 0.5 0.5 1" />
-    <xs:attribute name="springlength" type="twoRealsType" />
-    <xs:attribute name="stiffness" type="xs:double" default="0" />
-    <xs:attribute name="damping" type="xs:double" default="0" />
-    <xs:attribute name="armature" type="xs:double" />
+    <xs:attribute name="springlength" type="twoRealsType" default="-1 -1" />
+    <!-- stiffness / damping widened to 3-component polynomial (a, b, c) in 3.7.0 -->
+    <xs:attribute name="stiffness" type="upToThreeRealsType" default="0 0 0" />
+    <xs:attribute name="damping" type="upToThreeRealsType" default="0 0 0" />
+    <xs:attribute name="armature" type="xs:double" default="0" />
     <xs:attribute name="user" type="infRealsType" />
   </xs:complexType>
 
@@ -1616,19 +1728,22 @@
     <xs:attribute name="name" type="xs:string" use="optional" />
     <xs:attribute name="class" type="xs:string" use="optional" />
     <xs:attribute name="group" type="xs:int" default="0" />
-    <xs:attribute name="limited" type="xs:boolean" default="false" />
+    <xs:attribute name="limited" type="autoBoolType" default="auto" />
+    <xs:attribute name="actuatorfrclimited" type="autoBoolType" />
     <xs:attribute name="range" type="twoRealsType" default="0 0" />
+    <xs:attribute name="actuatorfrcrange" type="twoRealsType" default="0 0" />
     <xs:attribute name="solimplimit" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
     <xs:attribute name="solreflimit" type="twoRealsType" default="0.02 1" />
     <xs:attribute name="solimpfriction" type="solimpType" default="0.9 0.95 0.001 0.5 2" />
     <xs:attribute name="solreffriction" type="twoRealsType" default="0.02 1" />
     <xs:attribute name="margin" type="xs:double" default="0" />
     <xs:attribute name="frictionloss" type="xs:double" default="0" />
-    <xs:attribute name="stiffness" type="xs:double" default="0" />
-    <xs:attribute name="damping" type="xs:double" default="0" />
-    <xs:attribute name="armature" type="xs:double" />
+    <!-- stiffness / damping widened to 3-component polynomial (a, b, c) in 3.7.0 -->
+    <xs:attribute name="stiffness" type="upToThreeRealsType" default="0 0 0" />
+    <xs:attribute name="damping" type="upToThreeRealsType" default="0 0 0" />
+    <xs:attribute name="armature" type="xs:double" default="0" />
     <xs:attribute name="user" type="infRealsType" />
-    <xs:attribute name="springlength" type="twoRealsType" />
+    <xs:attribute name="springlength" type="twoRealsType" default="-1 -1" />
   </xs:complexType>
 
   <xs:complexType name="tendonJointType">
@@ -1640,6 +1755,16 @@
 
   <!--#region
     actuator.xsd -->
+  <!-- Common actuator history-buffer attributes (added in 3.5.0): delay, nsample, interp.
+       Reflected damping/armature for transmission target (added in 3.7.0). -->
+  <xs:attributeGroup name="actuatorHistoryAttrs">
+    <xs:attribute name="delay" type="xs:double" default="0" />
+    <xs:attribute name="nsample" type="xs:int" default="0" />
+    <xs:attribute name="interp" type="sensorInterpType" default="zoh" />
+    <xs:attribute name="damping" type="upToThreeRealsType" default="0 0 0" />
+    <xs:attribute name="armature" type="xs:double" default="0" />
+  </xs:attributeGroup>
+
   <xs:complexType name="actuatorGeneralType">
     <xs:attribute name="name" type="xs:string" use="optional" />
     <xs:attribute name="class" type="xs:string" use="optional" />
@@ -1670,6 +1795,7 @@
     <xs:attribute name="gainprm" type="upToTenRealsType" default="1 0 0 0 0 0 0 0 0 0" />
     <xs:attribute name="biasprm" type="upToTenRealsType" default="0 0 0 0 0 0 0 0 0 0" />
     <xs:attribute name="actearly" type="xs:boolean" />
+    <xs:attributeGroup ref="actuatorHistoryAttrs" />
   </xs:complexType>
 
   <xs:complexType name="actuatorMotorType">
@@ -1692,6 +1818,7 @@
     <xs:attribute name="site" type="xs:string" use="optional" />
     <xs:attribute name="refsite" type="xs:string" />
     <xs:attribute name="user" type="infRealsType" />
+    <xs:attributeGroup ref="actuatorHistoryAttrs" />
   </xs:complexType>
 
   <xs:complexType name="actuatorPositionType">
@@ -1763,6 +1890,7 @@
     <xs:attribute name="slidersite" type="xs:string" use="optional" />
     <xs:attribute name="user" type="infRealsType" />
     <xs:attribute name="timeconst" type="twoRealsType" default="0.01 0.04" />
+    <xs:attribute name="tausmooth" type="xs:double" default="0" />
     <xs:attribute name="range" type="twoRealsType" default="0.75 1.05" />
     <xs:attribute name="force" type="xs:double" default="-1" />
     <xs:attribute name="scale" type="xs:double" default="200" />
@@ -1771,6 +1899,7 @@
     <xs:attribute name="vmax" type="xs:double" default="1.5" />
     <xs:attribute name="fpmax" type="xs:double" default="1.3" />
     <xs:attribute name="fvmax" type="xs:double" default="1.2" />
+    <xs:attributeGroup ref="actuatorHistoryAttrs" />
   </xs:complexType>
 
   <xs:complexType name="actuatorAdhesionType">
@@ -1783,6 +1912,42 @@
     <xs:attribute name="body" type="xs:string" />
     <xs:attribute name="user" type="infRealsType" />
     <xs:attribute name="gain" type="xs:double" />
+    <xs:attribute name="delay" type="xs:double" default="0" />
+    <xs:attribute name="nsample" type="xs:int" default="0" />
+    <xs:attribute name="interp" type="sensorInterpType" default="zoh" />
+  </xs:complexType>
+
+  <!-- NEW in MuJoCo 3.7.0: DC motor actuator.
+       Must supply at least one of: resistance, motorconst, nominal. -->
+  <xs:complexType name="actuatorDcmotorType">
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="class" type="xs:string" use="optional" />
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="ctrllimited" type="autoBoolType" />
+    <xs:attribute name="ctrlrange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="lengthrange" type="twoRealsType" default="0 0" />
+    <xs:attribute name="gear" type="upToSixRealsType" default="1 0 0 0 0 0" />
+    <xs:attribute name="cranklength" type="xs:double" default="0" />
+    <xs:attribute name="joint" type="xs:string" use="optional" />
+    <xs:attribute name="jointinparent" type="xs:string" use="optional" />
+    <xs:attribute name="tendon" type="xs:string" use="optional" />
+    <xs:attribute name="cranksite" type="xs:string" use="optional" />
+    <xs:attribute name="slidersite" type="xs:string" use="optional" />
+    <xs:attribute name="site" type="xs:string" use="optional" />
+    <xs:attribute name="refsite" type="xs:string" />
+    <xs:attribute name="user" type="infRealsType" />
+    <!-- dcmotor-specific -->
+    <xs:attribute name="resistance" type="xs:double" />
+    <xs:attribute name="motorconst" type="twoRealsType" />
+    <xs:attribute name="nominal" type="threeRealsType" />
+    <xs:attribute name="inductance" type="twoRealsType" default="0 0" />
+    <xs:attribute name="thermal" type="sixRealsType" default="0 0 0 0 0 0" />
+    <xs:attribute name="saturation" type="threeRealsType" default="0 0 0" />
+    <xs:attribute name="cogging" type="threeRealsType" default="0 0 0" />
+    <xs:attribute name="lugre" type="fiveRealsType" default="0 0 0 0 0" />
+    <xs:attribute name="input" type="dcmotorInputType" default="voltage" />
+    <xs:attribute name="controller" type="upToSixRealsType" default="0 0 0 0 0 0" />
+    <xs:attributeGroup ref="actuatorHistoryAttrs" />
   </xs:complexType>
 
   <xs:complexType name="actuatorPluginextensionType">
@@ -1811,6 +1976,7 @@
     <xs:attribute name="slidersite" type="xs:string" />
     <xs:attribute name="user" type="infRealsType" />
     <xs:attribute name="actearly" type="xs:boolean" />
+    <xs:attributeGroup ref="actuatorHistoryAttrs" />
   </xs:complexType>
 
   <!--#endregion
@@ -1818,21 +1984,38 @@
 
   <!--#region
     sensor.xsd -->
-  <xs:complexType name="sensorType">
-    <!-- Covers touch, accelerometer, velocimeter, gyro, force,
-        torque, magnetometer, rangefinder -->
+  <!-- Common sensor attribute group (shared by all non-collision sensors):
+       noise, cutoff, nsample, interp, delay, interval, user.
+       nsample/interp/delay/interval were added in MuJoCo 3.5.0. -->
+  <xs:attributeGroup name="sensorCommonAttrs">
     <xs:attribute name="name" type="xs:string" use="optional" />
     <xs:attribute name="noise" type="xs:double" default="0" />
     <xs:attribute name="cutoff" type="xs:double" default="0" />
+    <xs:attribute name="nsample" type="xs:int" default="0" />
+    <xs:attribute name="interp" type="sensorInterpType" default="zoh" />
+    <xs:attribute name="delay" type="xs:double" default="0" />
+    <xs:attribute name="interval" type="twoRealsType" default="0 0" />
     <xs:attribute name="user" type="infRealsType" />
+  </xs:attributeGroup>
+
+  <xs:complexType name="sensorType">
+    <!-- Covers touch, accelerometer, velocimeter, gyro, force,
+        torque, magnetometer -->
+    <xs:attributeGroup ref="sensorCommonAttrs" />
     <xs:attribute name="site" type="xs:string" use="required" />
   </xs:complexType>
 
+  <xs:complexType name="sensorRangefinderType">
+    <!-- Rangefinder: site OR camera. data is a space-separated list of
+         dist|dir|origin|point|normal|depth (3.5.0). -->
+    <xs:attributeGroup ref="sensorCommonAttrs" />
+    <xs:attribute name="site" type="xs:string" use="optional" />
+    <xs:attribute name="camera" type="xs:string" use="optional" />
+    <xs:attribute name="data" type="rangefinderDataType" default="dist" />
+  </xs:complexType>
+
   <xs:complexType name="sensorCamprojectionType">
-    <xs:attribute name="name" type="xs:string" use="optional" />
-    <xs:attribute name="noise" type="xs:double" default="0" />
-    <xs:attribute name="cutoff" type="xs:double" default="0" />
-    <xs:attribute name="user" type="infRealsType" />
+    <xs:attributeGroup ref="sensorCommonAttrs" />
     <xs:attribute name="site" type="xs:string" use="required" />
     <xs:attribute name="camera" type="xs:string" use="required" />
   </xs:complexType>
@@ -1841,37 +2024,30 @@
     <!-- Covers jointpos, jointvel
         ballquat, ballangvel,jointlimitpos, jointlimitvel,
         jointlimitfrc -->
-    <xs:attribute name="name" type="xs:string" use="optional" />
-    <xs:attribute name="noise" type="xs:double" default="0" />
-    <xs:attribute name="cutoff" type="xs:double" default="0" />
-    <xs:attribute name="user" type="infRealsType" />
+    <xs:attributeGroup ref="sensorCommonAttrs" />
     <xs:attribute name="joint" type="xs:string" use="required" />
   </xs:complexType>
 
   <xs:complexType name="sensorJointactuatorfrcType">
-    <xs:attribute name="name" type="xs:string" use="optional" />
-    <xs:attribute name="noise" type="xs:double" default="0" />
-    <xs:attribute name="cutoff" type="xs:double" default="0" />
-    <xs:attribute name="user" type="infRealsType" />
+    <xs:attributeGroup ref="sensorCommonAttrs" />
     <xs:attribute name="joint" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="sensorTendonactuatorfrcType">
+    <xs:attributeGroup ref="sensorCommonAttrs" />
+    <xs:attribute name="tendon" type="xs:string" use="required" />
   </xs:complexType>
 
   <xs:complexType name="sensorTendonType">
     <!-- Covers tendonpos, tendonvel, tendonlimitpos, tendonlimitvel
         tendonlimitfrc-->
-    <xs:attribute name="name" type="xs:string" use="optional" />
-    <xs:attribute name="noise" type="xs:double" default="0" />
-    <xs:attribute name="cutoff" type="xs:double" default="0" />
-    <xs:attribute name="user" type="infRealsType" />
+    <xs:attributeGroup ref="sensorCommonAttrs" />
     <xs:attribute name="tendon" type="xs:string" use="required" />
   </xs:complexType>
 
   <xs:complexType name="sensorActuatorType">
     <!-- Covers actuatorpos, actuatorvel, actuatorfrc -->
-    <xs:attribute name="name" type="xs:string" use="optional" />
-    <xs:attribute name="noise" type="xs:double" default="0" />
-    <xs:attribute name="cutoff" type="xs:double" default="0" />
-    <xs:attribute name="user" type="infRealsType" />
+    <xs:attributeGroup ref="sensorCommonAttrs" />
     <xs:attribute name="actuator" type="xs:string" use="required" />
   </xs:complexType>
 
@@ -1879,10 +2055,7 @@
     <!-- Covers framepos, framequat, framexaxis, frameyaxis,
         framezaxis, framelinvel, frameangvel, framelinacc,
         frameangacc -->
-    <xs:attribute name="name" type="xs:string" use="optional" />
-    <xs:attribute name="noise" type="xs:double" default="0" />
-    <xs:attribute name="cutoff" type="xs:double" default="0" />
-    <xs:attribute name="user" type="infRealsType" />
+    <xs:attributeGroup ref="sensorCommonAttrs" />
     <xs:attribute name="objtype" type="objtypeType" use="required" />
     <xs:attribute name="objname" type="xs:string" use="required" />
     <xs:attribute name="reftype" type="objtypeType" />
@@ -1890,38 +2063,26 @@
   </xs:complexType>
 
   <xs:complexType name="sensorFrameaccType">
-    <xs:attribute name="name" type="xs:string" use="optional" />
-    <xs:attribute name="noise" type="xs:double" default="0" />
-    <xs:attribute name="cutoff" type="xs:double" default="0" />
-    <xs:attribute name="user" type="infRealsType" />
+    <xs:attributeGroup ref="sensorCommonAttrs" />
     <xs:attribute name="objtype" type="objtypeType" use="required" />
     <xs:attribute name="objname" type="xs:string" use="required" />
   </xs:complexType>
 
   <xs:complexType name="sensorSubtreeType">
     <!-- Covers subtreecom, subtreelinvel, subtreeangmom -->
-    <xs:attribute name="name" type="xs:string" use="optional" />
-    <xs:attribute name="noise" type="xs:double" default="0" />
-    <xs:attribute name="cutoff" type="xs:double" default="0" />
-    <xs:attribute name="user" type="infRealsType" />
+    <xs:attributeGroup ref="sensorCommonAttrs" />
     <xs:attribute name="body" type="xs:string" use="required" />
   </xs:complexType>
 
   <xs:complexType name="sensorInsidesiteType">
-    <xs:attribute name="name" type="xs:string" use="optional" />
-    <xs:attribute name="noise" type="xs:double" default="0" />
-    <xs:attribute name="cutoff" type="xs:double" default="0" />
-    <xs:attribute name="user" type="infRealsType" />
+    <xs:attributeGroup ref="sensorCommonAttrs" />
     <xs:attribute name="site" type="xs:string" use="required" />
     <xs:attribute name="objtype" type="objtypeType" use="required" />
     <xs:attribute name="objname" type="xs:string" use="required" />
   </xs:complexType>
 
   <xs:complexType name="sensorUserType">
-    <xs:attribute name="name" type="xs:string" use="optional" />
-    <xs:attribute name="noise" type="xs:double" default="0" />
-    <xs:attribute name="cutoff" type="xs:double" default="0" />
-    <xs:attribute name="user" type="infRealsType" />
+    <xs:attributeGroup ref="sensorCommonAttrs" />
     <xs:attribute name="objtype" type="customobjtypeType" />
     <xs:attribute name="objname" type="xs:string" />
     <xs:attribute name="datatype" type="datatypeType" use="required" />
@@ -1934,14 +2095,24 @@
     <xs:attribute name="plugin" type="xs:string" />
     <xs:attribute name="instance" type="xs:string" />
     <xs:attribute name="cutoff" type="xs:double" />
+    <xs:attribute name="nsample" type="xs:int" />
+    <xs:attribute name="interp" type="sensorInterpType" />
+    <xs:attribute name="delay" type="xs:double" />
+    <xs:attribute name="interval" type="twoRealsType" />
     <xs:attribute name="objtype" type="customobjtypeType" />
     <xs:attribute name="objname" type="xs:string" />
     <xs:attribute name="user" type="infRealsType" />
   </xs:complexType>
 
+  <!-- Collision sensors: fromto, normal, distance.
+       cutoff is repurposed as dismax (max collision-detect distance). -->
   <xs:complexType name="sensorFromtoType">
     <xs:attribute name="name" type="xs:string" />
     <xs:attribute name="noise" type="xs:double" />
+    <xs:attribute name="nsample" type="xs:int" />
+    <xs:attribute name="interp" type="sensorInterpType" />
+    <xs:attribute name="delay" type="xs:double" />
+    <xs:attribute name="interval" type="twoRealsType" />
     <xs:attribute name="user" type="infRealsType" />
     <xs:attribute name="cutoff" type="xs:double" use="required" />
     <xs:attribute name="geom1" type="xs:string" />
@@ -1953,8 +2124,12 @@
   <xs:complexType name="sensorSimpleSensorType">
     <xs:attribute name="name" type="xs:string" />
     <xs:attribute name="noise" type="xs:double" />
-    <xs:attribute name="user" type="infRealsType" />
     <xs:attribute name="cutoff" type="xs:double" />
+    <xs:attribute name="nsample" type="xs:int" />
+    <xs:attribute name="interp" type="sensorInterpType" />
+    <xs:attribute name="delay" type="xs:double" />
+    <xs:attribute name="interval" type="twoRealsType" />
+    <xs:attribute name="user" type="infRealsType" />
   </xs:complexType>
   <!--#endregion
     equality.xsd -->
@@ -1995,23 +2170,26 @@
     deformable.xsd -->
   <xs:complexType name="deformableFlexType">
     <xs:attribute name="name" type="xs:string" />
-    <xs:attribute name="group" type="xs:string" />
-    <xs:attribute name="dim" type="xs:int" use="required" />
-    <xs:attribute name="radius" type="xs:double" use="required" />
+    <xs:attribute name="group" type="xs:int" default="0" />
+    <xs:attribute name="dim" type="xs:int" default="2" />
+    <xs:attribute name="radius" type="xs:double" default="0.005" />
     <xs:attribute name="material" type="xs:string" />
-    <xs:attribute name="rgba" type="fourRealsType" />
-    <xs:attribute name="flatskin" type="twoRealsType" />
-    <xs:attribute name="body" type="xs:string" />
-    <xs:attribute name="vertex" type="fiveRealsType" />
-    <xs:attribute name="element" type="infIntsType" />
+    <xs:attribute name="rgba" type="fourRealsType" default="0.5 0.5 0.5 1" />
+    <xs:attribute name="flatskin" type="xs:boolean" default="false" />
+    <xs:attribute name="body" type="xs:string" use="required" />
+    <xs:attribute name="vertex" type="infRealsType" />
+    <xs:attribute name="element" type="infIntsType" use="required" />
     <xs:attribute name="texcoord" type="infRealsType" />
-    <xs:attribute name="elemtexcoord" type="infRealsType" />
-    <xs:attribute name="node" type="threeRealsType" />
+    <xs:attribute name="elemtexcoord" type="infIntsType" />
+    <xs:attribute name="node" type="xs:string" />
+    <!-- trilinear/quadratic DOFs for implicit-integrated deformables (3.5.0) -->
+    <xs:attribute name="dof" type="xs:string" />
+    <xs:attribute name="cellcount" type="threeIntsType" />
   </xs:complexType>
 
   <xs:complexType name="deformableFlexedgeType">
-    <xs:attribute name="stiffness" type="xs:double" />
-    <xs:attribute name="damping" type="xs:double" />
+    <xs:attribute name="stiffness" type="xs:double" default="0" />
+    <xs:attribute name="damping" type="xs:double" default="0" />
   </xs:complexType>
 
   <xs:complexType name="deformableFlexcontactType">
@@ -2025,9 +2203,9 @@
     <xs:attribute name="solimp" type="fiveRealsType" />
     <xs:attribute name="margin" type="xs:double" />
     <xs:attribute name="gap" type="xs:double" />
-    <xs:attribute name="internal" type="xs:int" />
+    <xs:attribute name="internal" type="xs:boolean" />
     <xs:attribute name="selfcollide" type="selfcollideType" />
-    <xs:attribute name="vertcollide" type="xs:boolean" />
+    <!-- vertcollide removed in MuJoCo 3.7.0 -->
     <xs:attribute name="activelayers" type="xs:int" />
     <xs:attribute name="passive" type="xs:boolean" />
   </xs:complexType>
@@ -2087,6 +2265,7 @@
           <xs:element name="cylinder" type="defaultCylinderType" />
           <xs:element name="muscle" type="defaultMuscleType" />
           <xs:element name="adhesion" type="defaultAdhesionType" />
+          <xs:element name="dcmotor" type="defaultDcmotorType" />
 
           <xs:element name="default" type="defaultMainType" minOccurs="0" />
           <xs:element name="include" type="rootIncludeType" />
@@ -2499,6 +2678,8 @@
                   <xs:element name="joint" type="equalityJointType" />
                   <xs:element name="tendon" type="equalityTendonType" />
                   <xs:element name="flex" type="equalityFlexType" />
+                  <xs:element name="flexvert" type="equalityFlexvertType" />
+                  <xs:element name="flexstrain" type="equalityFlexstrainType" />
                   <xs:element name="include" type="rootIncludeType" />
                 </xs:choice>
               </xs:complexType>
@@ -2558,6 +2739,7 @@
                   <xs:element name="cylinder" type="actuatorCylinderType" />
                   <xs:element name="muscle" type="actuatorMuscleType" />
                   <xs:element name="adhesion" type="actuatorAdhesionType" />
+                  <xs:element name="dcmotor" type="actuatorDcmotorType" />
                   <xs:element name="plugin" xmlns:ext="extension">
                     <xs:complexType>
                       <xs:complexContent>
@@ -2586,7 +2768,7 @@
                   <xs:element name="force" type="sensorType" />
                   <xs:element name="torque" type="sensorType" />
                   <xs:element name="magnetometer" type="sensorType" />
-                  <xs:element name="rangefinder" type="sensorType" />
+                  <xs:element name="rangefinder" type="sensorRangefinderType" />
                   <xs:element name="camprojection" type="sensorCamprojectionType" />
                   <xs:element name="jointpos" type="sensorJointType" />
                   <xs:element name="jointvel" type="sensorJointType" />
@@ -2602,6 +2784,8 @@
                   <xs:element name="jointlimitfrc" type="sensorJointType" />
                   <xs:element name="jointactuatorfrc"
                     type="sensorJointactuatorfrcType" />
+                  <xs:element name="tendonactuatorfrc"
+                    type="sensorTendonactuatorfrcType" />
                   <xs:element name="tendonlimitpos" type="sensorTendonType" />
                   <xs:element name="tendonlimitvel" type="sensorTendonType" />
                   <xs:element name="tendonlimitfrc" type="sensorTendonType" />
