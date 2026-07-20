@@ -221,6 +221,37 @@ function ensureDir(mujoco: MujocoModule, fname: string) {
 	}
 }
 
+/**
+ * Every VFS path written for the current scene, per module instance. Paths
+ * with leading `..` resolve OUTSIDE `/working` (`/working/../../assets/x.xml`
+ * lands at `/assets/x.xml`), so remounting `/working` between loads does not
+ * clear them — a stale include from a previous load would silently satisfy
+ * the next scene's compile (or mask a renamed include with old content). We
+ * record every write and unlink explicitly at the start of each full load.
+ */
+const writtenVfsPaths = new WeakMap<MujocoModule, Set<string>>();
+
+function writeVfsFile(mujoco: MujocoModule, fname: string, data: string | Uint8Array): void {
+	ensureDir(mujoco, fname);
+	const vfsPath = `/working/${fname}`;
+	mujoco.FS.writeFile(vfsPath, data);
+	let tracked = writtenVfsPaths.get(mujoco);
+	if (!tracked) {
+		tracked = new Set();
+		writtenVfsPaths.set(mujoco, tracked);
+	}
+	tracked.add(vfsPath);
+}
+
+/**
+ * Remove XML comments before scanning for `file=` references. Documentation
+ * inside comments (e.g. "Compose it with <include file=…/>" usage notes)
+ * would otherwise queue phantom files.
+ */
+function stripXmlComments(xml: string): string {
+	return xml.replace(/<!--[\s\S]*?-->/g, '');
+}
+
 interface LoadResult {
 	mjModel: MujocoModel;
 	mjData: MujocoData;
@@ -346,7 +377,19 @@ export async function loadScene(
 	config: SceneConfig,
 	onProgress?: (msg: string) => void
 ): Promise<LoadResult> {
-	// 1. Clean up virtual filesystem
+	// 1. Clean up virtual filesystem — including files a previous load wrote
+	// outside /working via leading-`..` include paths.
+	const staleFiles = writtenVfsPaths.get(mujoco);
+	if (staleFiles) {
+		for (const vfsPath of staleFiles) {
+			try {
+				mujoco.FS.unlink(vfsPath);
+			} catch {
+				/* already gone */
+			}
+		}
+		staleFiles.clear();
+	}
 	try {
 		mujoco.FS.unmount('/working');
 	} catch {
@@ -375,6 +418,12 @@ export async function loadScene(
 	// collect here and resolve binary file= paths once at the end.
 	const compilerDirs: CompilerDirs = { assetDir: '', meshDir: '', textureDir: '' };
 
+	// XML files we queued but could not obtain (loader declined AND fetch
+	// failed). MuJoCo reports a missing `<include>` as a bare `mjXError` with
+	// no message on the WASM build, so we name the files ourselves when the
+	// compile fails.
+	const missingXml: string[] = [];
+
 	// 2a. Download XML files sequentially (to discover dependencies).
 	// We assert `.endsWith('.xml')` so scanXmlDeps can't queue anything else.
 	while (xmlQueue.length > 0) {
@@ -387,7 +436,10 @@ export async function loadScene(
 		onProgress?.(`Downloading ${fname}...`);
 
 		const loaded = await readText(config.fileLoader, baseUrl, fname);
-		if (loaded === null) continue;
+		if (loaded === null) {
+			missingXml.push(fname);
+			continue;
+		}
 		let text = loaded;
 
 		// 3. Apply XML patches from config
@@ -439,8 +491,7 @@ export async function loadScene(
 		if (fname === config.sceneFile) mainSceneXml = text;
 		xmlFiles.set(fname, text);
 
-		ensureDir(mujoco, fname);
-		mujoco.FS.writeFile(`/working/${fname}`, text);
+		writeVfsFile(mujoco, fname, text);
 		scanXmlDeps(text, fname, downloaded, xmlQueue);
 		mergeCompilerDirs(text, compilerDirs);
 	}
@@ -499,8 +550,7 @@ export async function loadScene(
 
 		for (const result of results) {
 			if (!result) continue;
-			ensureDir(mujoco, result.fname);
-			mujoco.FS.writeFile(`/working/${result.fname}`, result.buffer);
+			writeVfsFile(mujoco, result.fname, result.buffer);
 		}
 
 		if (missing > 0) {
@@ -521,7 +571,11 @@ export async function loadScene(
 		mjModel = mujoco.MjModel.loadFromXML(`/working/${config.sceneFile}`);
 		mjData = new mujoco.MjData(mjModel);
 	} catch (e) {
-		throw new Error(resolveMuJoCoError(mujoco, e, config.sceneFile));
+		let message = resolveMuJoCoError(mujoco, e, config.sceneFile);
+		if (missingXml.length > 0) {
+			message += `\nReferenced XML file(s) could not be loaded: ${missingXml.join(', ')} — a missing <include>/<model> file fails the compile with exactly this generic error.`;
+		}
+		throw new Error(message);
 	}
 
 	// 6. Set initial pose — set both ctrl and qpos so robot starts at home.
@@ -575,8 +629,7 @@ export function loadFromFiles(
 	files: Map<string, string>
 ): { mjModel: MujocoModel; mjData: MujocoData; xml: string; xmlFiles: Map<string, string> } {
 	for (const [fname, text] of files) {
-		ensureDir(mujoco, fname);
-		mujoco.FS.writeFile(`/working/${fname}`, text);
+		writeVfsFile(mujoco, fname, text);
 	}
 	let mjModel: MujocoModel;
 	let mjData: MujocoData;
@@ -698,6 +751,7 @@ function scanXmlDeps(
 	downloaded: Set<string>,
 	queue: string[]
 ): void {
+	xmlString = stripXmlComments(xmlString);
 	const currentDir = currentFile.includes('/')
 		? currentFile.substring(0, currentFile.lastIndexOf('/') + 1)
 		: '';
@@ -719,7 +773,7 @@ function scanXmlDeps(
  * (shouldn't happen per MJCF spec).
  */
 function mergeCompilerDirs(xmlString: string, dirs: CompilerDirs): void {
-	const compilerMatch = xmlString.match(/<compiler\b([^>]*)/);
+	const compilerMatch = stripXmlComments(xmlString).match(/<compiler\b([^>]*)/);
 	if (!compilerMatch) return;
 	const attrs = compilerMatch[1];
 	const assetDir = extractAttr(attrs, 'assetdir');
@@ -746,6 +800,7 @@ function scanBinaryDeps(
 	downloaded: Set<string>,
 	assetFiles: string[]
 ): void {
+	xmlString = stripXmlComments(xmlString);
 	const currentDir = currentFile.includes('/')
 		? currentFile.substring(0, currentFile.lastIndexOf('/') + 1)
 		: '';

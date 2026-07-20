@@ -4,6 +4,14 @@ All notable changes to the MuJoCo Viewer extension will be documented in this fi
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.7] — 2026-07-20
+
+### Fixed
+
+- **Includes that escape the scene directory now load.** `<include file="../../assets/robots/station.xml"/>` (and `<model file="../…"/>` for `<attach>`) used to fail with a blank `mjXError`: path normalization silently ate the leading `..` segments, so the file was looked up at a nonexistent sibling path and skipped. Leading `..` are now preserved end-to-end (host scan, webview loader, virtual FS), and `<model file=…>` references are inlined like `<include>`s. Compiler `meshdir`/`texturedir`/`assetdir` are also aggregated across the whole include graph, matching MuJoCo's one-compiler-per-model semantics.
+- **Missing include files are now named in the load error.** The WASM build reports a missing `<include>` as a bare `mjXError` with no detail; the loader now lists every referenced XML file it could not obtain so you're not left guessing.
+- **Live editor sync works for includes outside the scene directory.** Edits to an included file living above the scene file (e.g. a shared robot station XML) now trigger a viewer reload; previously they were silently ignored.
+
 ## [0.1.6] — 2026-04-19
 
 ### Fixed

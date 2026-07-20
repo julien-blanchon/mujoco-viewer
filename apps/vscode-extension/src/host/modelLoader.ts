@@ -83,6 +83,10 @@ function scanIncludes(
   visited: Set<string>,
   queue: string[],
 ): void {
+  // Strip XML comments first — documentation inside comments (usage examples
+  // like "<include file=…/>") would otherwise queue phantom files. Mirrors
+  // SceneLoader's stripXmlComments so both sides scan the same references.
+  xml = xml.replace(/<!--[\s\S]*?-->/g, "");
   const currentDir = currentFile.includes("/")
     ? currentFile.substring(0, currentFile.lastIndexOf("/") + 1)
     : "";

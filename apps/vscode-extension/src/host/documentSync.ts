@@ -32,8 +32,11 @@ export function setupDocumentSync(
 
   const sub = vscode.workspace.onDidChangeTextDocument((event) => {
     if (event.contentChanges.length === 0) return;
+    // No `..` guard here: includes may legitimately live above the scene
+    // file's directory (e.g. `<include file="../../assets/robots/x.xml"/>`)
+    // and are tracked under exactly that relative key. `trackedPaths` is the
+    // filter that keeps unrelated documents out.
     const relFs = path.relative(rootDir, event.document.uri.fsPath);
-    if (relFs.startsWith("..")) return;
     const relPosix = relFs.split(path.sep).join("/");
     if (!trackedPaths.has(relPosix)) return;
 

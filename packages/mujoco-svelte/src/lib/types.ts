@@ -386,6 +386,7 @@ export interface MujocoModule {
 		writeFile: (path: string, content: string | Uint8Array) => void;
 		readFile: (path: string, opts?: { encoding: string }) => string | Uint8Array;
 		mkdir: (path: string) => void;
+		unlink: (path: string) => void;
 		unmount: (path: string) => void;
 	};
 	[key: string]: unknown;
