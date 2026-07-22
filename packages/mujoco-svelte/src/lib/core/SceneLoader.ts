@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { parser as xmlParser } from '@lezer/xml';
+import type { SyntaxNode } from '@lezer/common';
 import type {
 	MujocoData,
 	MujocoModel,
@@ -257,35 +259,42 @@ function stripXmlComments(xml: string): string {
 }
 
 /**
- * Byte offset of the document's root element tag, skipping any leading
- * whitespace, comments, processing instructions and DOCTYPE. Returns -1 when
- * the document has no element at all.
- *
- * We can't just search for the first `<mujoco…`: MJCF assets routinely carry a
- * banner comment describing how to compose the file, and those comments quote
- * the very tags we're looking for.
+ * Elements MJCF allows directly under `<mujoco>`. Anything else at the top
+ * level of a fragment is body-level content (`<body>`, `<geom>`, `<site>`,
+ * `<light>`, …) that the fragment expects to be spliced into an enclosing
+ * `<worldbody>`/`<body>` at its include site.
  */
-function findRootTagIndex(text: string): number {
-	let i = 0;
-	while (i < text.length) {
-		while (i < text.length && /\s/.test(text[i])) i++;
-		if (text.startsWith('<!--', i)) {
-			const end = text.indexOf('-->', i + 4);
-			if (end === -1) return -1;
-			i = end + 3;
-		} else if (text.startsWith('<?', i)) {
-			const end = text.indexOf('?>', i + 2);
-			if (end === -1) return -1;
-			i = end + 2;
-		} else if (text.startsWith('<!', i)) {
-			const end = text.indexOf('>', i + 2);
-			if (end === -1) return -1;
-			i = end + 1;
-		} else {
-			return text[i] === '<' ? i : -1;
-		}
+const MJCF_SECTIONS = new Set([
+	'compiler',
+	'option',
+	'size',
+	'visual',
+	'statistic',
+	'default',
+	'custom',
+	'asset',
+	'worldbody',
+	'deformable',
+	'contact',
+	'equality',
+	'tendon',
+	'actuator',
+	'sensor',
+	'keyframe',
+	'extension',
+	'replicate',
+	'include',
+	'model'
+]);
+
+/** Tag name of a lezer `Element` node, or null if it has no readable opener. */
+function tagNameOf(elem: SyntaxNode, text: string): string | null {
+	const opener = elem.firstChild;
+	if (!opener) return null;
+	for (let c = opener.firstChild; c; c = c.nextSibling) {
+		if (c.name === 'TagName') return text.slice(c.from, c.to);
 	}
-	return -1;
+	return null;
 }
 
 /**
@@ -293,10 +302,19 @@ function findRootTagIndex(text: string): number {
  *
  * `<mujocoinclude>` files are valid `<include file=…/>` targets but are not
  * loadable models: MuJoCo accepts only `<mujoco>` as a document root and
- * rejects anything else with a detail-free `mjXError`. Since the two roots
- * take identical children, swapping the tag yields a well-formed model — which
- * makes fixtures and sub-assemblies (RoboCasa drawers, robot hands, …)
- * previewable on their own instead of failing with an inscrutable error.
+ * rejects anything else with a detail-free `mjXError`. Opening one directly
+ * (a RoboCasa fixture, a CALVIN widget, a robot sub-assembly) is a reasonable
+ * thing to want, so we make it loadable.
+ *
+ * Two shapes exist in the wild and they need different handling:
+ *
+ *  - **Section fragments** carry `<asset>`, `<worldbody>`, `<default>` … at the
+ *    top level. Swapping the root tag is enough.
+ *  - **Body-level fragments** carry loose `<body>`/`<geom>`/`<site>` meant to
+ *    land inside the includer's `<worldbody>`. A bare root swap produces
+ *    `<mujoco><body/></mujoco>`, which MuJoCo accepts *and silently ignores* —
+ *    you get a successful compile with an empty model, which is worse than an
+ *    error. These need an explicit `<worldbody>` wrapper.
  *
  * Only the copy written to MuJoCo's virtual FS goes through this. The text
  * returned to callers — and therefore anything saved back to disk — keeps its
@@ -304,21 +322,71 @@ function findRootTagIndex(text: string): number {
  * file into a model.
  */
 export function asStandaloneModel(text: string): string {
-	const start = findRootTagIndex(text);
-	if (start === -1) return text;
-	const TAG = '<mujocoinclude';
-	if (!text.startsWith(TAG, start)) return text;
-	// Reject `<mujocoincludeX`; accept `<mujocoinclude>`, `… />`, `… attr=…`.
-	const after = text[start + TAG.length];
-	if (after !== undefined && !/[\s/>]/.test(after)) return text;
+	const tree = xmlParser.parse(text);
 
-	const opened = text.slice(0, start) + '<mujoco' + text.slice(start + TAG.length);
-	// The root's closing tag is necessarily the last one — the roots don't nest.
-	const closeIdx = opened.lastIndexOf('</mujocoinclude');
-	if (closeIdx === -1) return opened; // self-closing root: nothing to close
-	const closeEnd = opened.indexOf('>', closeIdx);
-	if (closeEnd === -1) return opened;
-	return opened.slice(0, closeIdx) + '</mujoco>' + opened.slice(closeEnd + 1);
+	// Locate the root element. `Document` may also hold comments / PIs / DOCTYPE,
+	// which is why we can't just match the first `<mujoco…` in the source: MJCF
+	// assets routinely carry banner comments quoting the very tags we look for.
+	let root: SyntaxNode | null = null;
+	for (let c = tree.topNode.firstChild; c; c = c.nextSibling) {
+		if (c.name === 'Element') {
+			root = c;
+			break;
+		}
+	}
+	if (!root || tagNameOf(root, text) !== 'mujocoinclude') return text;
+
+	const opener = root.firstChild;
+	const closer = root.lastChild;
+	if (!opener) return text;
+	// A self-closing `<mujocoinclude/>` has no children worth relocating; just
+	// rename it so the compile gets a valid (empty) model instead of mjXError.
+	const hasCloseTag = !!closer && closer.name === 'CloseTag' && closer !== opener;
+
+	const openTag = text.slice(opener.from, opener.to).replace(/^<mujocoinclude/, '<mujoco');
+	if (!hasCloseTag) return text.slice(0, opener.from) + openTag + text.slice(opener.to);
+
+	// Everything between the root's open and close tags.
+	const innerFrom = opener.to;
+	const innerTo = closer.from;
+
+	// Partition the root's direct element children into MJCF sections and loose
+	// body-level content, recording spans relative to `inner`.
+	const loose: Array<{ from: number; to: number }> = [];
+	let worldbodyContentAt = -1;
+	for (let c = root.firstChild; c; c = c.nextSibling) {
+		if (c.name !== 'Element') continue;
+		const tag = tagNameOf(c, text);
+		if (!tag) continue;
+		if (tag === 'worldbody' && worldbodyContentAt === -1 && c.firstChild) {
+			worldbodyContentAt = c.firstChild.to - innerFrom;
+		}
+		if (!MJCF_SECTIONS.has(tag)) loose.push({ from: c.from - innerFrom, to: c.to - innerFrom });
+	}
+
+	let inner = text.slice(innerFrom, innerTo);
+	if (loose.length > 0) {
+		const block = loose.map((s) => inner.slice(s.from, s.to)).join('\n      ');
+		// Cut tail-first so the earlier spans keep their offsets.
+		for (let i = loose.length - 1; i >= 0; i--) {
+			inner = inner.slice(0, loose[i].from) + inner.slice(loose[i].to);
+		}
+		if (worldbodyContentAt >= 0) {
+			// Splice into the existing `<worldbody>` rather than adding a second
+			// one, so a fragment mixing both shapes still obeys MJCF's
+			// one-worldbody-per-model rule. Every loose span sits after this
+			// anchor only if it followed the worldbody; guard by clamping.
+			const removedBefore = loose
+				.filter((s) => s.to <= worldbodyContentAt)
+				.reduce((n, s) => n + (s.to - s.from), 0);
+			const at = worldbodyContentAt - removedBefore;
+			inner = inner.slice(0, at) + `\n      ${block}` + inner.slice(at);
+		} else {
+			inner += `\n    <worldbody>\n      ${block}\n    </worldbody>\n  `;
+		}
+	}
+
+	return text.slice(0, opener.from) + openTag + inner + '</mujoco>' + text.slice(closer.to);
 }
 
 interface LoadResult {

@@ -4,6 +4,12 @@ All notable changes to the MuJoCo Viewer extension will be documented in this fi
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.9] — 2026-07-22
+
+### Fixed
+
+- **Body-level `<mujocoinclude>` fragments no longer load as an empty scene.** 0.1.8 made fragments loadable by swapping the root tag, which is correct for fragments built out of `<asset>` / `<worldbody>` / `<default>` sections. But many fragments instead hold loose `<body>` / `<geom>` / `<site>` meant to be spliced into the includer's `<worldbody>` — and `<mujoco><body/></mujoco>` is something MuJoCo accepts *and silently ignores*, so those opened as a successful compile of an empty model. Worse than the original error. Loose body-level content is now wrapped in a `<worldbody>`, splicing into an existing one when the fragment mixes both shapes. Root detection moved onto the real XML parser rather than string matching.
+
 ## [0.1.8] — 2026-07-22
 
 ### Added
