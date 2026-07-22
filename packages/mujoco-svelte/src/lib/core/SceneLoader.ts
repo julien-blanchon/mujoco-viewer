@@ -191,15 +191,19 @@ function resolveMuJoCoError(
 	// instead of leaving them staring at "mjXError".
 	const combined = parts.join('\n');
 	if (/bad_alloc|out of memory/i.test(combined)) {
+		// Note: mujoco-js is built with ALLOW_MEMORY_GROWTH, so the heap already
+		// grows on demand to the wasm32 ceiling of 2 GB. There is no INITIAL_MEMORY
+		// to raise — a scene that hits this is genuinely too big for a 32-bit build.
 		parts.push(
-			'(WASM heap-size limit. The default mujoco-js build is too small for very large scenes. Reduce the number of textures / meshes, or rebuild mujoco-js with a larger INITIAL_MEMORY.)'
+			'(WASM heap exhausted. mujoco-js grows its heap on demand up to the 2 GB wasm32 limit, so this scene has genuinely outgrown it — reduce mesh / texture count.)'
 		);
-	} else if (/^mj[XC]Error$/.test(combined) || parts.length === 0) {
-		// MuJoCo threw without a message (Embind dropped it). Most common cause:
-		// asset count or total texture memory exceeded the WASM heap, surfaced
-		// as a no-detail XML / compile error.
+	} else if (/^mj[XC]Error$/.test(combined)) {
+		// MuJoCo threw without a message. mujoco-js does not marshal the C++
+		// exception detail (`getExceptionMessage` faults on the pointer) and
+		// writes nothing to stdout/stderr for these, so all we can offer is the
+		// set of causes we've actually observed.
 		parts.push(
-			'(MuJoCo reported an error without a message — the mujoco-js WASM build does not expose the detail. Most common causes: (a) missing / corrupt asset file, (b) WASM heap exhausted on a large scene. Try a smaller scene or a mujoco-js build with a larger INITIAL_MEMORY.)'
+			'(MuJoCo reported an error without a message — the mujoco-js WASM build does not expose the detail. Most common causes: a missing <include> or asset file, an unknown / misspelled attribute, or an attribute whose co-required partner is unset.)'
 		);
 	}
 
@@ -250,6 +254,71 @@ function writeVfsFile(mujoco: MujocoModule, fname: string, data: string | Uint8A
  */
 function stripXmlComments(xml: string): string {
 	return xml.replace(/<!--[\s\S]*?-->/g, '');
+}
+
+/**
+ * Byte offset of the document's root element tag, skipping any leading
+ * whitespace, comments, processing instructions and DOCTYPE. Returns -1 when
+ * the document has no element at all.
+ *
+ * We can't just search for the first `<mujoco…`: MJCF assets routinely carry a
+ * banner comment describing how to compose the file, and those comments quote
+ * the very tags we're looking for.
+ */
+function findRootTagIndex(text: string): number {
+	let i = 0;
+	while (i < text.length) {
+		while (i < text.length && /\s/.test(text[i])) i++;
+		if (text.startsWith('<!--', i)) {
+			const end = text.indexOf('-->', i + 4);
+			if (end === -1) return -1;
+			i = end + 3;
+		} else if (text.startsWith('<?', i)) {
+			const end = text.indexOf('?>', i + 2);
+			if (end === -1) return -1;
+			i = end + 2;
+		} else if (text.startsWith('<!', i)) {
+			const end = text.indexOf('>', i + 2);
+			if (end === -1) return -1;
+			i = end + 1;
+		} else {
+			return text[i] === '<' ? i : -1;
+		}
+	}
+	return -1;
+}
+
+/**
+ * Rewrite an MJCF include-fragment into a standalone model.
+ *
+ * `<mujocoinclude>` files are valid `<include file=…/>` targets but are not
+ * loadable models: MuJoCo accepts only `<mujoco>` as a document root and
+ * rejects anything else with a detail-free `mjXError`. Since the two roots
+ * take identical children, swapping the tag yields a well-formed model — which
+ * makes fixtures and sub-assemblies (RoboCasa drawers, robot hands, …)
+ * previewable on their own instead of failing with an inscrutable error.
+ *
+ * Only the copy written to MuJoCo's virtual FS goes through this. The text
+ * returned to callers — and therefore anything saved back to disk — keeps its
+ * `<mujocoinclude>` root, so previewing a fragment never rewrites the user's
+ * file into a model.
+ */
+export function asStandaloneModel(text: string): string {
+	const start = findRootTagIndex(text);
+	if (start === -1) return text;
+	const TAG = '<mujocoinclude';
+	if (!text.startsWith(TAG, start)) return text;
+	// Reject `<mujocoincludeX`; accept `<mujocoinclude>`, `… />`, `… attr=…`.
+	const after = text[start + TAG.length];
+	if (after !== undefined && !/[\s/>]/.test(after)) return text;
+
+	const opened = text.slice(0, start) + '<mujoco' + text.slice(start + TAG.length);
+	// The root's closing tag is necessarily the last one — the roots don't nest.
+	const closeIdx = opened.lastIndexOf('</mujocoinclude');
+	if (closeIdx === -1) return opened; // self-closing root: nothing to close
+	const closeEnd = opened.indexOf('>', closeIdx);
+	if (closeEnd === -1) return opened;
+	return opened.slice(0, closeIdx) + '</mujoco>' + opened.slice(closeEnd + 1);
 }
 
 interface LoadResult {
@@ -491,7 +560,10 @@ export async function loadScene(
 		if (fname === config.sceneFile) mainSceneXml = text;
 		xmlFiles.set(fname, text);
 
-		writeVfsFile(mujoco, fname, text);
+		// The entry point must be a `<mujoco>` document; include-fragments get
+		// their root swapped for the compile only (see `asStandaloneModel`).
+		// Included files are left alone — MuJoCo wants `<mujocoinclude>` there.
+		writeVfsFile(mujoco, fname, fname === config.sceneFile ? asStandaloneModel(text) : text);
 		scanXmlDeps(text, fname, downloaded, xmlQueue);
 		mergeCompilerDirs(text, compilerDirs);
 	}
@@ -565,6 +637,10 @@ export async function loadScene(
 	// get thrown as raw integer pointers. Extract the C++ exception message
 	// so callers see something better than "0" / "Unknown error".
 	onProgress?.('Loading model...');
+	// Discard any diagnostics emitted while writing assets — the buffer is
+	// shared, and we only want output produced by this compile attached to a
+	// compile failure.
+	(mujoco as unknown as { __drainStderr?: () => string }).__drainStderr?.();
 	let mjModel: MujocoModel;
 	let mjData: MujocoData;
 	try {
@@ -629,7 +705,7 @@ export function loadFromFiles(
 	files: Map<string, string>
 ): { mjModel: MujocoModel; mjData: MujocoData; xml: string; xmlFiles: Map<string, string> } {
 	for (const [fname, text] of files) {
-		writeVfsFile(mujoco, fname, text);
+		writeVfsFile(mujoco, fname, fname === sceneFile ? asStandaloneModel(text) : text);
 	}
 	let mjModel: MujocoModel;
 	let mjData: MujocoData;

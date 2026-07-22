@@ -4,6 +4,17 @@ All notable changes to the MuJoCo Viewer extension will be documented in this fi
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.8] — 2026-07-22
+
+### Added
+
+- **`<mujocoinclude>` fragments can now be opened directly.** Include-fragments — RoboCasa fixtures, robot sub-assemblies, object libraries — are valid `<include file=…/>` targets but are not loadable models: MuJoCo accepts only `<mujoco>` as a document root and rejects anything else with a blank `mjXError`. Opening one now previews it standalone. Only the copy handed to MuJoCo is rewritten; the text saved back to disk keeps its `<mujocoinclude>` root, so previewing a fragment never converts your file into a model. These files also get the title-bar viewer icon now.
+
+### Fixed
+
+- **XML parse errors report the actual problem again.** MuJoCo writes its parser detail (`XML parse error 14: … Line number=1: XMLElement name=worldbody`) to *stdout*, but the loader only captured stderr — so the buffer was empty for precisely the failures it existed to explain, and every one collapsed to a bare `mjXError`. Both streams are captured now, and the buffer is cleared before each compile so stale output can't attach itself to an unrelated error.
+- **Load errors no longer blame WASM memory.** The "rebuild mujoco-js with a larger `INITIAL_MEMORY`" advice was wrong: mujoco-js is built with `ALLOW_MEMORY_GROWTH`, so the heap already grows on demand to the 2 GB wasm32 ceiling and there is no `INITIAL_MEMORY` to raise. The guidance sent people chasing a heap problem when the real cause was almost always a missing include, a missing asset, or a bad attribute — which is what the message now says.
+
 ## [0.1.7] — 2026-07-20
 
 ### Fixed

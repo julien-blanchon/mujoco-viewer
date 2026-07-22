@@ -39,24 +39,30 @@ export class MujocoWasmState {
 
 		const wasmUrl = this.wasmUrl;
 
-		// Rolling buffer of recent stderr lines. MuJoCo writes XML / compile errors
-		// through Emscripten's printErr, but the Embind exception it throws often
-		// carries only the type name. We stash the last few lines so the scene
-		// loader can attach them to the thrown Error.
+		// Rolling buffer of recent MuJoCo diagnostics. The Embind exception it
+		// throws often carries only the type name, so we stash recent output for
+		// the scene loader to attach to the thrown Error.
+		//
+		// Both streams are hooked deliberately: MuJoCo's XML parser reports its
+		// detail ("XML parse error 14: … Line number=1 …") on *stdout*, not
+		// stderr. Listening only to printErr left the buffer empty for exactly
+		// the failures it was meant to explain.
 		const stderrBuffer: string[] = [];
+		const capture = (text: string) => {
+			if (text.includes('Aborted') && !this.#disposed) {
+				this.error = 'Simulation crashed. Reload page.';
+				this.status = 'error';
+				return;
+			}
+			stderrBuffer.push(text);
+			if (stderrBuffer.length > 50) stderrBuffer.shift();
+		};
 		const wasmPromise = loadMujoco({
 			...(wasmUrl
 				? { locateFile: (path: string) => (path.endsWith('.wasm') ? wasmUrl : path) }
 				: {}),
-			printErr: (text: string) => {
-				if (text.includes('Aborted') && !this.#disposed) {
-					this.error = 'Simulation crashed. Reload page.';
-					this.status = 'error';
-					return;
-				}
-				stderrBuffer.push(text);
-				if (stderrBuffer.length > 50) stderrBuffer.shift();
-			}
+			print: capture,
+			printErr: capture
 		});
 
 		const timeoutPromise = new Promise<never>((_, reject) =>
